@@ -23,7 +23,39 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+<body>
+  <a href="#main-content">Skip to content</a>
+
+  <header>
+    <nav aria-label="Main navigation">
+      <%= link_to "BookMyEvent", root_path %>
+
+      <% if current_user %>
+        <span>Signed in as <%= current_user.name %></span>
+
+        <%= link_to "My account", account_path %>
+
+        <%= button_to "Log out",
+                      logout_path,
+                      method: :delete,
+                      form: { data: { turbo: false } } %>
+      <% else %>
+        <%= link_to "Sign up", signup_path %>
+        <%= link_to "Log in", login_path %>
+      <% end %>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <% if notice.present? %>
+      <p role="status"><%= notice %></p>
+    <% end %>
+
+    <% if alert.present? %>
+      <p role="alert"><%= alert %></p>
+    <% end %>
+
     <%= yield %>
-  </body>
+  </main>
+</body>
 </html>

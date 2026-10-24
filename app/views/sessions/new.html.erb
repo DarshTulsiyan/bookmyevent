@@ -1,0 +1,25 @@
+<h1>Log in</h1>
+
+<%= form_with url: login_path,
+              data: { turbo: false } do |form| %>
+  <p>
+    <%= form.label :email %><br>
+    <%= form.email_field :email,
+                         required: true,
+                         autocomplete: "email" %>
+  </p>
+
+  <p>
+    <%= form.label :password %><br>
+    <%= form.password_field :password,
+                            required: true,
+                            autocomplete: "current-password" %>
+  </p>
+
+  <%= form.submit "Log in" %>
+<% end %>
+
+<p>
+  New to BookMyEvent?
+  <%= link_to "Sign up", signup_path %>
+</p>
