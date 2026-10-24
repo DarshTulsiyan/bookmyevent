@@ -60,3 +60,13 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
+
+gem "bcrypt", "~> 3.1"
+
+group :development, :test do
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "cucumber-rails", require: false
+  gem "database_cleaner-active_record"
+  gem "simplecov", require: false
+end
