@@ -1,0 +1,14 @@
+<h1>Welcome to BookMyEvent</h1>
+
+<p>Discover events and manage your tickets.</p>
+
+<% if current_user %>
+  <p>Welcome, <%= current_user.name %>!</p>
+  <%= link_to "My account", account_path %>
+<% else %>
+  <p>
+    <%= link_to "Sign up", signup_path %>
+    or
+    <%= link_to "Log in", login_path %>
+  </p>
+<% end %>
