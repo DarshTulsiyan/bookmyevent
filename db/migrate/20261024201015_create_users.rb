@@ -17,5 +17,5 @@ class CreateUsers < ActiveRecord::Migration[8.1]
     add_check_constraint :users,
                         "role IN (0, 1, 2)",
                         name: "users_role_valid"
-  end 
+  end
 end

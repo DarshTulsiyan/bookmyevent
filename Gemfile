@@ -64,8 +64,6 @@ group :development do
   gem "dotenv-rails"
 end
 
-gem "bcrypt", "~> 3.1"
-
 group :development, :test do
   gem "rspec-rails"
   gem "factory_bot_rails"
