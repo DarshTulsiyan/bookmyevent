@@ -1,0 +1,45 @@
+<h1><%= @event.title %></h1>
+
+<%# Phase 2: admin approval. Restore to show the badge to everyone. %>
+<%# unless @event.approved? %>
+<% if current_user == @event.organizer && !@event.approved? %>
+  <p>Status: <%= event_status_badge(@event) %></p>
+<% end %>
+
+<p>When: <%= l @event.starts_at, format: :long %></p>
+<p>Where: <%= @event.venue %></p>
+
+<% if @event.description.present? %>
+  <%= simple_format @event.description %>
+<% end %>
+
+<% if current_user == @event.organizer %>
+  <p><%= link_to "Edit event", edit_event_path(@event) %></p>
+<% end %>
+
+<section aria-labelledby="ticket-tiers-heading">
+  <h2 id="ticket-tiers-heading">Tickets</h2>
+
+  <% if @ticket_tiers.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Tier</th>
+          <th scope="col">Seats left</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @ticket_tiers.each do |tier| %>
+          <tr>
+            <td><%= tier.name %></td>
+            <td><%= tier.seats_left.positive? ? tier.seats_left : "Sold out" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>Tickets are not on sale yet.</p>
+  <% end %>
+</section>
+
+<p><%= link_to "Back to events", events_path %></p>

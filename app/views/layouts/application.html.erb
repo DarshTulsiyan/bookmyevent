@@ -29,11 +29,16 @@
   <header>
     <nav aria-label="Main navigation">
       <%= link_to "BookMyEvent", root_path %>
+      <%= link_to "Events", events_path %>
 
       <% if current_user %>
         <span>Signed in as <%= current_user.name %></span>
 
         <%= link_to "My account", account_path %>
+
+        <% if current_user.organizer? %>
+          <%= link_to "Create event", new_event_path %>
+        <% end %>
 
         <%= button_to "Log out",
                       logout_path,

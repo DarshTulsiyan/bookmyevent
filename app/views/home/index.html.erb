@@ -2,6 +2,8 @@
 
 <p>Discover events and manage your tickets.</p>
 
+<p><%= link_to "Browse upcoming events", events_path %></p>
+
 <% if current_user %>
   <p>Welcome, <%= current_user.name %>!</p>
   <%= link_to "My account", account_path %>

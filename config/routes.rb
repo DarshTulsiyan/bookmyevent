@@ -23,4 +23,6 @@ Rails.application.routes.draw do
   delete "/logout", to: "sessions#destroy", as: :logout
 
   get "/account", to: "home#account", as: :account
+
+  resources :events, only: %i[index show new create edit update]
 end

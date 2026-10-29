@@ -1,6 +1,11 @@
 class User < ApplicationRecord
   has_secure_password
 
+  has_many :organized_events,
+           class_name: "Event",
+           foreign_key: :organizer_id,
+           inverse_of: :organizer
+
   enum :role, {
     attendee: 0,
     organizer: 1,
