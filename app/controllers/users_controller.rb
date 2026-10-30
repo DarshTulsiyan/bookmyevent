@@ -4,10 +4,11 @@ class UsersController < ApplicationController
   end
 
   def create
-    attributes = user_params
-    selected_role = attributes.delete(:role)
+    # Role is read on its own and checked against an allowlist,
+    # so it is never mass-assigned.
+    selected_role = params.dig(:user, :role).to_s
 
-    @user = User.new(attributes)
+    @user = User.new(user_params)
 
     unless %w[attendee organizer].include?(selected_role)
       @user.errors.add(:role, "must be attendee or organizer")
@@ -36,8 +37,7 @@ class UsersController < ApplicationController
       :name,
       :email,
       :password,
-      :password_confirmation,
-      :role
+      :password_confirmation
     )
   end
 end

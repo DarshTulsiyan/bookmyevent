@@ -1,0 +1,44 @@
+<% if event.errors.any? %>
+  <div role="alert">
+    <h2>Please correct the following:</h2>
+
+    <ul>
+      <% event.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: event,
+              data: { turbo: false } do |form| %>
+  <p>
+    <%= form.label :title %><br>
+    <%= form.text_field :title, required: true %>
+  </p>
+
+  <p>
+    <%= form.label :description %><br>
+    <%= form.text_area :description, rows: 5 %>
+  </p>
+
+  <p>
+    <%= form.label :venue %><br>
+    <%= form.text_field :venue, required: true %>
+  </p>
+
+  <p>
+    <%= form.label :starts_at, "Starts at" %><br>
+    <%= form.datetime_local_field :starts_at, required: true %>
+  </p>
+
+  <p>
+    <%= form.label :total_capacity, "Total capacity" %><br>
+    <%= form.number_field :total_capacity,
+                          required: true,
+                          min: 1,
+                          step: 1 %>
+  </p>
+
+  <%= form.submit %>
+<% end %>

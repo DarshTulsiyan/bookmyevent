@@ -1,0 +1,18 @@
+<h1>Upcoming events</h1>
+
+<% if @events.any? %>
+  <ul>
+    <% @events.each do |event| %>
+      <li>
+        <h2><%= link_to event.title, event_path(event) %></h2>
+        <p>
+          <%= l event.starts_at, format: :long %>
+          &middot;
+          <%= event.venue %>
+        </p>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No upcoming events yet. Check back soon.</p>
+<% end %>
