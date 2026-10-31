@@ -1,9 +1,23 @@
 <h1><%= @event.title %></h1>
 
-<%# Phase 2: admin approval. Restore to show the badge to everyone. %>
-<%# unless @event.approved? %>
-<% if current_user == @event.organizer && !@event.approved? %>
+<% if current_user == @event.organizer || current_user&.admin? %>
   <p>Status: <%= event_status_badge(@event) %></p>
+<% end %>
+
+<% if @event.pending? && current_user&.admin? %>
+  <p>
+    <%= button_tag "Approve & publish",
+                   type: "button",
+                   disabled: true,
+                   class: "admin-review-button",
+                   title: "Approval actions will be implemented later" %>
+    <%= button_tag "Reject",
+                   type: "button",
+                   disabled: true,
+                   class: "admin-review-button admin-review-button--reject",
+                   title: "Rejection actions will be implemented later" %>
+  </p>
+  <p>Review controls are shown for reference; approval and rejection are not available yet.</p>
 <% end %>
 
 <p>When: <%= l @event.starts_at, format: :long %></p>
@@ -38,7 +52,13 @@
       </tbody>
     </table>
   <% else %>
-    <p>Tickets are not on sale yet.</p>
+    <% if current_user == @event.organizer %>
+      <p>You have not configured ticket tiers for this event yet.</p>
+    <% elsif current_user&.admin? %>
+      <p>No ticket tiers have been configured for this event.</p>
+    <% else %>
+      <p>Tickets are not on sale yet.</p>
+    <% end %>
   <% end %>
 </section>
 

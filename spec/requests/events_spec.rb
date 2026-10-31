@@ -86,16 +86,15 @@ RSpec.describe "Events", type: :request do
     let!(:approved) { FactoryBot.create(:event, title: "Approved Show", status: :approved) }
     let!(:pending) { FactoryBot.create(:event, title: "Pending Show") }
 
-    # Phase 2: admin approval. Pending events are listed until then.
-    it "lists upcoming events, without login" do
+    it "lists only upcoming approved events, without login" do
       past = FactoryBot.create(:event, title: "Past Show", status: :approved)
       past.update_column(:starts_at, 1.day.ago)
 
       get events_path
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Approved Show", "Pending Show")
-      expect(response.body).not_to include("Past Show")
+      expect(response.body).to include("Approved Show")
+      expect(response.body).not_to include("Pending Show", "Past Show")
     end
 
     it "shows an approved event with its tiers to an attendee" do
@@ -108,14 +107,12 @@ RSpec.describe "Events", type: :request do
       expect(response.body).to include("Approved Show", "VIP", "6")
     end
 
-    # Phase 2: admin approval. Restore to expect :not_found.
-    it "shows a pending event to attendees without the status badge" do
+    it "hides a pending event from attendees" do
       log_in(FactoryBot.create(:user))
 
       get event_path(pending)
 
-      expect(response).to have_http_status(:ok)
-      expect(response.body).not_to include("Pending approval")
+      expect(response).to have_http_status(:not_found)
     end
 
     it "shows a pending event to its organizer" do
@@ -125,6 +122,34 @@ RSpec.describe "Events", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Pending approval")
+    end
+
+    it "shows a pending event to an admin with review controls" do
+      log_in(FactoryBot.create(:user, role: :admin))
+
+      get event_path(pending)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Pending approval", "Approve &amp; publish", "Reject")
+    end
+
+    it "hides a rejected event from attendees" do
+      rejected = FactoryBot.create(:event, title: "Rejected Show", status: :rejected)
+      log_in(FactoryBot.create(:user))
+
+      get event_path(rejected)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "shows a rejected event to its organizer" do
+      rejected = FactoryBot.create(:event, title: "Rejected Show", status: :rejected)
+      log_in(rejected.organizer)
+
+      get event_path(rejected)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Rejected")
     end
   end
 end

@@ -1,0 +1,13 @@
+<% content_for :title, "Users | Admin | BookMyEvent" %>
+
+<header>
+  <h1>Users</h1>
+  <p>Accounts and assigned roles.</p>
+</header>
+
+<%= render "navigation" %>
+
+<section aria-labelledby="users-heading">
+  <h2 id="users-heading">All user accounts</h2>
+  <%= render "users_table", users: @users %>
+</section>

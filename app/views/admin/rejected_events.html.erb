@@ -1,0 +1,17 @@
+<% content_for :title, "Rejected events | Admin | BookMyEvent" %>
+
+<header>
+  <h1>Rejected events</h1>
+  <p>Events that were rejected during review.</p>
+</header>
+
+<%= render "navigation" %>
+
+<section aria-labelledby="rejected-events-heading">
+  <h2 id="rejected-events-heading">Rejected events</h2>
+  <%= render "events_table",
+             events: @events,
+             caption: "Rejected events",
+             approval_actions: false,
+             empty_message: "There are no rejected events." %>
+</section>

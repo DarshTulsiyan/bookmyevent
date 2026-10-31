@@ -1,0 +1,17 @@
+<% content_for :title, "Published events | Admin | BookMyEvent" %>
+
+<header>
+  <h1>Published events</h1>
+  <p>Approved events currently published on BookMyEvent.</p>
+</header>
+
+<%= render "navigation" %>
+
+<section aria-labelledby="published-events-heading">
+  <h2 id="published-events-heading">Approved events</h2>
+  <%= render "events_table",
+             events: @events,
+             caption: "Published events",
+             approval_actions: false,
+             empty_message: "There are no published events." %>
+</section>
