@@ -6,6 +6,7 @@ class AdminController < ApplicationController
     @event_count = Event.count
     @pending_event_count = Event.pending.count
     @published_event_count = Event.approved.count
+    @rejected_event_count = Event.rejected.count
     @user_role_counts = User.roles.keys.index_with { |role| User.where(role: role).count }
     @users = User.order(:name, :email)
   end
@@ -20,5 +21,9 @@ class AdminController < ApplicationController
 
   def published_events
     @events = Event.approved.includes(:organizer).order(:starts_at)
+  end
+
+  def rejected_events
+    @events = Event.rejected.includes(:organizer).order(created_at: :desc)
   end
 end

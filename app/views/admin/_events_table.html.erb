@@ -9,6 +9,9 @@
         <th scope="col">Starts</th>
         <th scope="col">Capacity</th>
         <th scope="col">Status</th>
+        <% if approval_actions %>
+          <th scope="col">Actions</th>
+        <% end %>
       </tr>
     </thead>
     <tbody>
@@ -19,7 +22,21 @@
           <td><%= event.venue %></td>
           <td><%= l(event.starts_at, format: :long) %></td>
           <td><%= event.total_capacity %></td>
-          <td><%= event.status.humanize %></td>
+          <td><%= event_status_badge(event) %></td>
+          <% if approval_actions %>
+            <td>
+              <%= button_tag "Approve & publish",
+                             type: "button",
+                             disabled: true,
+                             class: "admin-review-button",
+                             title: "Approval actions will be implemented later" %>
+              <%= button_tag "Reject",
+                             type: "button",
+                             disabled: true,
+                             class: "admin-review-button admin-review-button--reject",
+                             title: "Rejection actions will be implemented later" %>
+            </td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

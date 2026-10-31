@@ -8,7 +8,7 @@ RSpec.describe "Admin dashboard", type: :request do
   end
 
   it "requires login for every admin page" do
-    [ admin_path, admin_users_path, admin_pending_events_path, admin_published_events_path ].each do |path|
+    [ admin_path, admin_users_path, admin_pending_events_path, admin_published_events_path, admin_rejected_events_path ].each do |path|
       get path
 
       expect(response).to redirect_to(login_path)
@@ -53,9 +53,10 @@ RSpec.describe "Admin dashboard", type: :request do
     expect(response.body).to include(suspended_organizer.email, "Organizer", "Suspended")
   end
 
-  it "shows pending events separately from published events" do
+  it "shows pending, published, and rejected events on separate admin pages" do
     pending_event = FactoryBot.create(:event, title: "Awaiting Approval")
     published_event = FactoryBot.create(:event, title: "Published Concert", status: :approved)
+    rejected_event = FactoryBot.create(:event, title: "Rejected Concert", status: :rejected)
     log_in(admin)
 
     get admin_pending_events_path
@@ -68,6 +69,12 @@ RSpec.describe "Admin dashboard", type: :request do
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Published Concert")
-    expect(response.body).not_to include("Awaiting Approval")
+    expect(response.body).not_to include("Awaiting Approval", "Rejected Concert")
+
+    get admin_rejected_events_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Rejected Concert")
+    expect(response.body).not_to include("Awaiting Approval", "Published Concert")
   end
 end

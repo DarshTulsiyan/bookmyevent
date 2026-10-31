@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   get "/admin/users", to: "admin#users", as: :admin_users
   get "/admin/events/pending", to: "admin#pending_events", as: :admin_pending_events
   get "/admin/events/published", to: "admin#published_events", as: :admin_published_events
+  get "/admin/events/rejected", to: "admin#rejected_events", as: :admin_rejected_events
 
   resources :events, only: %i[index show new create edit update] do
     post "tiers", to: "ticket_tiers#create", as: :tiers
