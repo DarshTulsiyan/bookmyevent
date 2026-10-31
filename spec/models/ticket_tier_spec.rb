@@ -63,7 +63,7 @@ RSpec.describe TicketTier, type: :model do
     end
 
     it "requires capacity to be a positive integer" do
-      [0, -1, 1.5].each do |capacity|
+      [ 0, -1, 1.5 ].each do |capacity|
         tier = FactoryBot.build(
           :ticket_tier,
           event: event,
