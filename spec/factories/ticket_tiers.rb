@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :ticket_tier do
-    event { nil }
-    name { "MyString" }
-    capacity { 1 }
-    tickets_sold { 1 }
+    association :event
+    sequence(:name) { |n| "Tier #{n}" }
+    capacity { 10 }
+    tickets_sold { 0 }
   end
 end

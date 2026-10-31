@@ -24,5 +24,9 @@ Rails.application.routes.draw do
 
   get "/account", to: "home#account", as: :account
 
-  resources :events, only: %i[index show new create edit update]
+  resources :events, only: %i[index show new create edit update] do
+    post "tiers", to: "ticket_tiers#create", as: :tiers
+    patch "tiers/:tier_id", to: "ticket_tiers#update", as: :tier
+    delete "tiers/:tier_id", to: "ticket_tiers#destroy"
+  end
 end
