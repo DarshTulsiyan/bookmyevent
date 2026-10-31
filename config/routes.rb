@@ -24,6 +24,11 @@ Rails.application.routes.draw do
 
   get "/account", to: "home#account", as: :account
 
+  get "/admin", to: "admin#dashboard", as: :admin
+  get "/admin/users", to: "admin#users", as: :admin_users
+  get "/admin/events/pending", to: "admin#pending_events", as: :admin_pending_events
+  get "/admin/events/published", to: "admin#published_events", as: :admin_published_events
+
   resources :events, only: %i[index show new create edit update] do
     post "tiers", to: "ticket_tiers#create", as: :tiers
     patch "tiers/:tier_id", to: "ticket_tiers#update", as: :tier

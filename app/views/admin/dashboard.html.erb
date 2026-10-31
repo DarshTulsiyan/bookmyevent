@@ -1,0 +1,57 @@
+<% content_for :title, "Admin dashboard | BookMyEvent" %>
+
+<header>
+  <h1>Admin dashboard</h1>
+  <p>Review account and event activity.</p>
+</header>
+
+<%= render "navigation" %>
+
+<section aria-labelledby="summary-heading">
+  <h2 id="summary-heading">Summary</h2>
+  <dl>
+    <div>
+      <dt>Total users</dt>
+      <dd><%= @user_count %></dd>
+    </div>
+    <div>
+      <dt>Total events</dt>
+      <dd><%= @event_count %></dd>
+    </div>
+    <div>
+      <dt>Events awaiting approval</dt>
+      <dd><%= link_to @pending_event_count, admin_pending_events_path %></dd>
+    </div>
+    <div>
+      <dt>Published events</dt>
+      <dd><%= link_to @published_event_count, admin_published_events_path %></dd>
+    </div>
+  </dl>
+</section>
+
+<section aria-labelledby="role-breakdown-heading">
+  <h2 id="role-breakdown-heading">Users by role</h2>
+  <table>
+    <caption>Account counts by role</caption>
+    <thead>
+      <tr>
+        <th scope="col">Role</th>
+        <th scope="col">Users</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @user_role_counts.each do |role, count| %>
+        <tr>
+          <th scope="row"><%= role.humanize %></th>
+          <td><%= count %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<section aria-labelledby="user-accounts-heading">
+  <h2 id="user-accounts-heading">User accounts</h2>
+  <p><%= link_to "View all users", admin_users_path %></p>
+  <%= render "users_table", users: @users %>
+</section>

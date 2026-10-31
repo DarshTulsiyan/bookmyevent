@@ -1,0 +1,29 @@
+<% if events.any? %>
+  <table>
+    <caption><%= caption %></caption>
+    <thead>
+      <tr>
+        <th scope="col">Event</th>
+        <th scope="col">Organizer</th>
+        <th scope="col">Venue</th>
+        <th scope="col">Starts</th>
+        <th scope="col">Capacity</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% events.each do |event| %>
+        <tr>
+          <td><%= link_to event.title, event_path(event) %></td>
+          <td><%= event.organizer.name %></td>
+          <td><%= event.venue %></td>
+          <td><%= l(event.starts_at, format: :long) %></td>
+          <td><%= event.total_capacity %></td>
+          <td><%= event.status.humanize %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p><%= empty_message %></p>
+<% end %>
