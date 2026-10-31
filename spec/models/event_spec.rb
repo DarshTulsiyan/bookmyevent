@@ -55,4 +55,105 @@ RSpec.describe Event, type: :model do
   it "rejects an unknown status" do
     expect(FactoryBot.build(:event, status: "archived")).not_to be_valid
   end
+
+  describe "ticket tier capacity validation" do
+    let(:organizer) { FactoryBot.create(:user, :organizer) }
+
+    let(:event) do
+      FactoryBot.create(
+        :event,
+        organizer: organizer,
+        total_capacity: 100
+      )
+    end
+
+    it "allows combined tier capacity equal to event capacity" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 60
+      )
+
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "VIP",
+        capacity: 40
+      )
+
+      expect(event.reload).to be_valid
+    end
+
+    it "rejects combined tier capacity exceeding event capacity" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 60
+      )
+
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "VIP",
+        capacity: 40
+      )
+
+      event.total_capacity = 99
+
+      expect(event).not_to be_valid
+      expect(event.errors[:total_capacity]).to include(
+        "cannot be less than the combined ticket tier capacities"
+      )
+    end
+  end
+
+  describe "#seats_left" do
+    let(:organizer) { FactoryBot.create(:user, :organizer) }
+
+    let(:event) do
+      FactoryBot.create(
+        :event,
+        organizer: organizer,
+        total_capacity: 100
+      )
+    end
+
+    it "returns the total remaining seats across all ticket tiers" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 60,
+        tickets_sold: 20
+      )
+
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "VIP",
+        capacity: 40,
+        tickets_sold: 10
+      )
+
+      expect(event.seats_left).to eq(70)
+    end
+
+    it "returns zero when no seats remain" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 100,
+        tickets_sold: 100
+      )
+
+      expect(event.seats_left).to eq(0)
+    end
+
+    it "returns zero when the event has no ticket tiers" do
+      expect(event.seats_left).to eq(0)
+    end
+  end
 end
