@@ -36,6 +36,10 @@
 
         <%= link_to "My account", account_path %>
 
+        <% if current_user.admin? %>
+          <%= link_to "Admin dashboard", admin_path %>
+        <% end %>
+
         <% if current_user.organizer? %>
           <%= link_to "Create event", new_event_path %>
         <% end %>

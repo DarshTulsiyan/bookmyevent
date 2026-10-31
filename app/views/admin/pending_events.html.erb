@@ -1,0 +1,16 @@
+<% content_for :title, "Events awaiting approval | Admin | BookMyEvent" %>
+
+<header>
+  <h1>Events awaiting approval</h1>
+  <p>Pending events are listed here for review.</p>
+</header>
+
+<%= render "navigation" %>
+
+<section aria-labelledby="pending-events-heading">
+  <h2 id="pending-events-heading">Pending events</h2>
+  <%= render "events_table",
+             events: @events,
+             caption: "Events awaiting approval",
+             empty_message: "There are no events awaiting approval." %>
+</section>
