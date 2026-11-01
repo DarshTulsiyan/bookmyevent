@@ -47,3 +47,8 @@
   background: #fee2e2;
   color: #991b1b;
 }
+
+.flash-alert {
+  color: #b91c1c;
+  font-weight: 600;
+}
