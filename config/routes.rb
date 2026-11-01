@@ -24,6 +24,9 @@ Rails.application.routes.draw do
 
   get "/account", to: "home#account", as: :account
 
+  resources :bookings, only: :create
+  get "/my-tickets", to: "tickets#index", as: :my_tickets
+
   get "/admin", to: "admin#dashboard", as: :admin
   get "/admin/users", to: "admin#users", as: :admin_users
   get "/admin/events/pending", to: "admin#pending_events", as: :admin_pending_events

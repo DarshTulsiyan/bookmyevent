@@ -231,7 +231,7 @@ end
 
       FactoryBot.create(
         :ticket,
-        user: attendee,
+        booking: FactoryBot.create(:booking, user: attendee, event: event),
         ticket_tier: sold_tier
       )
 

@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :ticket do
-    user { nil }
-    ticket_tier { nil }
-    checked_in_at { "2026-10-24 15:10:31" }
+    association :ticket_tier
+    booking { association(:booking, event: ticket_tier.event) }
+    checked_in_at { nil }
   end
 end

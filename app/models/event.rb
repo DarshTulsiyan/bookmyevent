@@ -4,6 +4,7 @@ class Event < ApplicationRecord
              class_name: "User",
              inverse_of: :organized_events
 
+  has_many :bookings, dependent: :restrict_with_error
   has_many :ticket_tiers, dependent: :destroy
 
   enum :status, {
