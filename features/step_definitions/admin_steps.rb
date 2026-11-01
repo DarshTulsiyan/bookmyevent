@@ -68,19 +68,19 @@ Then("the user list shows names, roles, and account status") do
   end
 end
 
-Then("the event appears with disabled approve and reject buttons") do
-  event_row = page.find("tr", text: @admin_event.title)
-
-  expect(event_row).to have_content("Pending approval")
-  expect(event_row).to have_button("Approve & publish", disabled: true)
-  expect(event_row).to have_button("Reject", disabled: true)
+Then("the event appears with enabled approve and reject buttons") do
+  within(page.find("tr", text: @admin_event.title)) do
+    expect(page).to have_content("Pending approval")
+    expect(page).to have_button("Approve & publish", disabled: false)
+    expect(page).to have_button("Reject", disabled: false)
+  end
 end
 
-Then("the event details show pending status and disabled review buttons") do
+Then("the event details show pending status and enabled review buttons") do
   expect(page).to have_content(@admin_event.title)
   expect(page).to have_content("Pending approval")
-  expect(page).to have_button("Approve & publish", disabled: true)
-  expect(page).to have_button("Reject", disabled: true)
+  expect(page).to have_button("Approve & publish", disabled: false)
+  expect(page).to have_button("Reject", disabled: false)
 end
 
 Then("only the published event appears") do
