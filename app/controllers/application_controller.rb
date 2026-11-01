@@ -26,13 +26,6 @@ class ApplicationController < ActionController::Base
     false
   end
 
-  def attendee_only
-    return unless logged_in_only
-    return if current_user.attendee?
-
-    redirect_to root_path, alert: "Not authorized", status: :see_other
-  end
-
   def organizer_only
     return unless logged_in_only
     return if current_user.organizer?

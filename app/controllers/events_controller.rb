@@ -3,12 +3,16 @@ class EventsController < ApplicationController
   before_action :own_event_only, only: %i[edit update]
 
   def index
-    @events = Event.approved.upcoming
+    # Phase 2: admin approval. Restore to list approved events only.
+    # @events = Event.approved.upcoming
+    @events = Event.upcoming
   end
 
   def show
     @event = Event.find_by(id: params[:id])
-    return head :not_found unless @event&.visible_to?(current_user)
+    # Phase 2: admin approval. Restore to hide unapproved events.
+    # return head :not_found unless @event&.visible_to?(current_user)
+    return head :not_found if @event.nil?
 
     @ticket_tiers = @event.ticket_tiers.order(:id)
   end

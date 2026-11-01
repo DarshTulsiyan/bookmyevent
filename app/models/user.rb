@@ -6,9 +6,6 @@ class User < ApplicationRecord
            foreign_key: :organizer_id,
            inverse_of: :organizer
 
-  has_many :bookings, dependent: :restrict_with_error
-  has_many :tickets, through: :bookings
-
   enum :role, {
     attendee: 0,
     organizer: 1,
