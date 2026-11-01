@@ -36,6 +36,14 @@ class Event < ApplicationRecord
     ticket_tiers.reload.sum { |tier| tier.seats_left }
   end
 
+  def approve
+    transition_from_pending(:approved)
+  end
+
+  def reject
+    transition_from_pending(:rejected)
+  end
+
   private
 
   def starts_at_in_future
@@ -57,4 +65,15 @@ class Event < ApplicationRecord
       )
     end
   end
+
+  def transition_from_pending(new_status)
+    with_lock do
+      unless pending?
+        errors.add(:status, "can only be changed while pending")
+        return false
+      end
+
+      update(status: new_status)
+  end
+end
 end

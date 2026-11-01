@@ -25,16 +25,15 @@
           <td><%= event_status_badge(event) %></td>
           <% if approval_actions %>
             <td>
-              <%= button_tag "Approve & publish",
-                             type: "button",
-                             disabled: true,
-                             class: "admin-review-button",
-                             title: "Approval actions will be implemented later" %>
-              <%= button_tag "Reject",
-                             type: "button",
-                             disabled: true,
-                             class: "admin-review-button admin-review-button--reject",
-                             title: "Rejection actions will be implemented later" %>
+              <%= button_to "Approve & publish",
+              approve_event_path(event),
+              method: :patch,
+              class: "admin-review-button" %>
+
+              <%= button_to "Reject",
+              reject_event_path(event),
+              method: :patch,
+              class: "admin-review-button admin-review-button--reject" %>
             </td>
           <% end %>
         </tr>

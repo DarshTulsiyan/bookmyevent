@@ -37,5 +37,9 @@ Rails.application.routes.draw do
     post "tiers", to: "ticket_tiers#create", as: :tiers
     patch "tiers/:tier_id", to: "ticket_tiers#update", as: :tier
     delete "tiers/:tier_id", to: "ticket_tiers#destroy"
+    member do
+      patch :approve
+      patch :reject
+    end
   end
 end
