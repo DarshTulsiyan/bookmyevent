@@ -3,3 +3,26 @@
 <p>Name: <%= current_user.name %></p>
 <p>Email: <%= current_user.email %></p>
 <p>Account type: <%= current_user.role.humanize %></p>
+
+<% if current_user.admin? %>
+  <p><%= link_to "Open admin dashboard", admin_path %></p>
+<% elsif current_user.organizer? %>
+  <section aria-labelledby="my-events-heading">
+    <h2 id="my-events-heading">My events</h2>
+    <% if @organized_events.any? %>
+      <ul>
+        <% @organized_events.each do |event| %>
+          <li>
+            <%= link_to event.title, event_path(event) %>
+            &mdash; <%= event_status_badge(event) %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>You have not created any events yet.</p>
+    <% end %>
+    <p><%= link_to "Create event", new_event_path %></p>
+  </section>
+<% else %>
+  <p>Browse upcoming published events from the <%= link_to "events page", events_path %>.</p>
+<% end %>
