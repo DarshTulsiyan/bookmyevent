@@ -25,14 +25,14 @@ Feature: Admin dashboard and event review
     And a pending event "Awaiting Approval" exists
     When the admin logs in
     And the admin opens the pending events page
-    Then the event appears with disabled approve and reject buttons
+    Then the event appears with enabled approve and reject buttons
 
   Scenario: Administrator sees pending status and review controls on event details
     Given an admin account exists
     And a pending event "Awaiting Approval" exists
     When the admin logs in
     And the admin opens the details for "Awaiting Approval"
-    Then the event details show pending status and disabled review buttons
+    Then the event details show pending status and enabled review buttons
 
   Scenario: Administrator views published events separately
     Given an admin account exists

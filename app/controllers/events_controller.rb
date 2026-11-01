@@ -1,5 +1,6 @@
 class EventsController < ApplicationController
-  before_action :organizer_only, except: %i[index show]
+  before_action :organizer_only, only: %i[new create edit update]
+  before_action :admin_only, only: %i[approve reject]
   before_action :own_event_only, only: %i[edit update]
 
   def index
@@ -41,6 +42,36 @@ class EventsController < ApplicationController
                   status: :see_other
     else
       render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def approve
+    event = Event.find_by(id: params[:id])
+    return head :not_found unless event
+
+    if event.approve
+      redirect_to admin_pending_events_path,
+                  notice: "Event approved and published.",
+                  status: :see_other
+    else
+      redirect_to admin_pending_events_path,
+                  alert: event.errors.full_messages.to_sentence,
+                  status: :see_other
+    end
+  end
+
+  def reject
+    event = Event.find_by(id: params[:id])
+    return head :not_found unless event
+
+    if event.reject
+      redirect_to admin_pending_events_path,
+                  notice: "Event rejected.",
+                  status: :see_other
+    else
+      redirect_to admin_pending_events_path,
+                  alert: event.errors.full_messages.to_sentence,
+                  status: :see_other
     end
   end
 

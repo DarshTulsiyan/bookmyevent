@@ -156,4 +156,34 @@ RSpec.describe Event, type: :model do
       expect(event.seats_left).to eq(0)
     end
   end
+
+  describe "approval decisions" do
+    it "approves a pending event" do
+      event = FactoryBot.create(:event, status: :pending)
+
+      expect(event.approve).to be(true)
+      expect(event.reload).to be_approved
+    end
+
+    it "rejects a pending event" do
+      event = FactoryBot.create(:event, status: :pending)
+
+      expect(event.reject).to be(true)
+      expect(event.reload).to be_rejected
+    end
+
+    %i[approved rejected].each do |initial_status|
+      %i[approve reject].each do |action|
+        it "does not #{action} an #{initial_status} event" do
+          event = FactoryBot.create(:event, status: initial_status)
+
+          expect(event.public_send(action)).to be(false)
+          expect(event.errors[:status]).to include(
+            "can only be changed while pending"
+          )
+          expect(event.reload.status).to eq(initial_status.to_s)
+        end
+      end
+    end
+  end
 end
