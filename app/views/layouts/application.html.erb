@@ -40,6 +40,10 @@
           <%= link_to "My Tickets", my_tickets_path %>
         <% end %>
 
+        <% if current_user.admin? %>
+          <%= link_to "Admin dashboard", admin_path %>
+        <% end %>
+
         <% if current_user.organizer? %>
           <%= link_to "Create event", new_event_path %>
         <% end %>
