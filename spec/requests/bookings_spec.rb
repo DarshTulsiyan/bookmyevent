@@ -82,13 +82,15 @@ RSpec.describe "Ticket booking", type: :request do
     expect(Booking.count).to eq(0)
   end
 
-  it "does not show the booking form for an unapproved event" do
+  it "hides unapproved events from attendees and rejects bookings for them" do
     event.update!(status: :pending)
     log_in(attendee)
     tier
     get event_path(event)
-    expect(response.body).to include("Booking is not open for this event")
-    expect(response.body).not_to include("Choose your tickets")
+    expect(response).to have_http_status(:not_found)
+
+    submit
+    expect(response).to redirect_to(event_path(event))
     expect(Booking.count).to eq(0)
   end
 
