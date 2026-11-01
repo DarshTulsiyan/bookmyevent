@@ -92,7 +92,7 @@ Given("the {string} tier has a sold ticket") do |name|
 
   FactoryBot.create(
     :ticket,
-    user: @organizer,
+    booking: FactoryBot.create(:booking, event: @event),
     ticket_tier: tier
   )
 end
