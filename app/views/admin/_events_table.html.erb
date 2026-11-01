@@ -1,0 +1,46 @@
+<% if events.any? %>
+  <table>
+    <caption><%= caption %></caption>
+    <thead>
+      <tr>
+        <th scope="col">Event</th>
+        <th scope="col">Organizer</th>
+        <th scope="col">Venue</th>
+        <th scope="col">Starts</th>
+        <th scope="col">Capacity</th>
+        <th scope="col">Status</th>
+        <% if approval_actions %>
+          <th scope="col">Actions</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% events.each do |event| %>
+        <tr>
+          <td><%= link_to event.title, event_path(event) %></td>
+          <td><%= event.organizer.name %></td>
+          <td><%= event.venue %></td>
+          <td><%= l(event.starts_at, format: :long) %></td>
+          <td><%= event.total_capacity %></td>
+          <td><%= event_status_badge(event) %></td>
+          <% if approval_actions %>
+            <td>
+              <%= button_tag "Approve & publish",
+                             type: "button",
+                             disabled: true,
+                             class: "admin-review-button",
+                             title: "Approval actions will be implemented later" %>
+              <%= button_tag "Reject",
+                             type: "button",
+                             disabled: true,
+                             class: "admin-review-button admin-review-button--reject",
+                             title: "Rejection actions will be implemented later" %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p><%= empty_message %></p>
+<% end %>

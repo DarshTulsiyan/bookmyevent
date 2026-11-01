@@ -1,0 +1,21 @@
+<table>
+  <caption>User accounts</caption>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Role</th>
+      <th scope="col">Account status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.each do |user| %>
+      <tr>
+        <td><%= user.name %></td>
+        <td><%= user.email %></td>
+        <td><%= user.role.humanize %></td>
+        <td><%= user.suspended? ? "Suspended" : "Active" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
