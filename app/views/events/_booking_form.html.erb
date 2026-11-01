@@ -13,13 +13,13 @@
         <p>Choose quantities for one or more tiers. Booking completes immediately.</p>
         <% @ticket_tiers.each do |tier| %>
           <p>
-            <%= label_tag "quantity_#{tier.id}", "#{tier.name} quantity" %>
             <% if tier.sold_out? %>
-              <span>Sold Out</span>
+              <span><%= tier.name %>: Sold Out</span>
             <% else %>
+              <%= label_tag "quantity_#{tier.id}", "#{tier.name} quantity" %>
               <%= number_field_tag "tickets_by_tier[#{tier.id}]", 0,
-                                   id: "quantity_#{tier.id}", min: 0,
-                                   max: tier.seats_left, step: 1 %>
+                                  id: "quantity_#{tier.id}", min: 0,
+                                  max: tier.seats_left, step: 1 %>
             <% end %>
           </p>
         <% end %>
