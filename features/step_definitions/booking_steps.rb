@@ -44,7 +44,10 @@ When("I submit my concert ticket selection") do
 end
 
 Then("I should see a sold-out booking error") do
-  expect(page).to have_content("General: Sold Out")
+  expect(page).to have_css(
+    '.flash-alert[role="alert"]',
+    text: "General: Sold Out"
+  )
 end
 
 Then("I should have no bookings") do

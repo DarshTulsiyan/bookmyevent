@@ -45,7 +45,7 @@
         <% @ticket_tiers.each do |tier| %>
           <tr>
             <td><%= tier.name %></td>
-            <td><%= tier.seats_left.positive? ? tier.seats_left : "Sold out" %></td>
+            <td><%= tier.sold_out? ? "Sold Out" : tier.seats_left %></td>
           </tr>
         <% end %>
       </tbody>
