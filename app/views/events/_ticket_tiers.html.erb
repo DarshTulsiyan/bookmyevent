@@ -1,0 +1,58 @@
+<h3>Add a ticket tier</h3>
+
+<% new_tier = @ticket_tier&.new_record? ? @ticket_tier : TicketTier.new %>
+
+<%= form_with model: [@event, new_tier],
+              url: event_tiers_path(@event),
+              data: { turbo: false } do |form| %>
+  <p>
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </p>
+
+  <p>
+    <%= form.label :capacity %>
+    <%= form.number_field :capacity, required: true, min: 1, step: 1 %>
+  </p>
+
+  <%= form.submit "Add tier" %>
+<% end %>
+
+<h3>Existing ticket tiers</h3>
+
+<% @event.ticket_tiers.order(:id).each do |tier| %>
+  <section>
+    <h4><%= tier.name %></h4>
+
+    <p>
+      Capacity: <%= tier.capacity %> |
+      Sold: <%= tier.tickets_sold %> |
+      Remaining: <%= tier.seats_left %>
+    </p>
+
+    <%= form_with model: [@event, tier],
+                  url: event_tier_path(@event, tier),
+                  method: :patch,
+                  data: { turbo: false } do |form| %>
+      <p>
+        <%= form.label :name %>
+        <%= form.text_field :name, required: true %>
+      </p>
+
+      <p>
+        <%= form.label :capacity %>
+        <%= form.number_field :capacity,
+                              required: true,
+                              min: tier.tickets_sold,
+                              step: 1 %>
+      </p>
+
+      <%= form.submit "Update tier" %>
+    <% end %>
+
+    <%= button_to "Delete tier",
+                  event_tier_path(@event, tier),
+                  method: :delete,
+                  data: { turbo_confirm: "Are you sure?" } %>
+  </section>
+<% end %>

@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  root "home#index"
+  root "events#index"
 
   get "/signup", to: "users#new", as: :signup
   post "/signup", to: "users#create"
@@ -24,5 +24,23 @@ Rails.application.routes.draw do
 
   get "/account", to: "home#account", as: :account
 
-  resources :events, only: %i[index show new create edit update]
+  resources :bookings, only: :create
+  resources :tickets, only: :create
+  get "/my-tickets", to: "tickets#index", as: :my_tickets
+
+  get "/admin", to: "admin#dashboard", as: :admin
+  get "/admin/users", to: "admin#users", as: :admin_users
+  get "/admin/events/pending", to: "admin#pending_events", as: :admin_pending_events
+  get "/admin/events/published", to: "admin#published_events", as: :admin_published_events
+  get "/admin/events/rejected", to: "admin#rejected_events", as: :admin_rejected_events
+
+  resources :events, only: %i[index show new create edit update] do
+    post "tiers", to: "ticket_tiers#create", as: :tiers
+    patch "tiers/:tier_id", to: "ticket_tiers#update", as: :tier
+    delete "tiers/:tier_id", to: "ticket_tiers#destroy"
+    member do
+      patch :approve
+      patch :reject
+    end
+  end
 end

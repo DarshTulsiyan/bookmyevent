@@ -1,0 +1,30 @@
+<% if !@event.approved? %>
+  <p>Booking is not open for this event.</p>
+<% elsif !current_user %>
+  <p><%= link_to "Log in to book tickets", login_path %></p>
+<% elsif current_user.attendee? %>
+  <% if @ticket_tiers.all?(&:sold_out?) %>
+    <p>Sold Out</p>
+  <% else %>
+    <%= form_with url: bookings_path, data: { turbo: false } do %>
+      <%= hidden_field_tag :event_id, @event.id %>
+      <fieldset>
+        <legend>Choose your tickets</legend>
+        <p>Choose quantities for one or more tiers. Booking completes immediately.</p>
+        <% @ticket_tiers.each do |tier| %>
+          <p>
+            <% if tier.sold_out? %>
+              <span><%= tier.name %>: Sold Out</span>
+            <% else %>
+              <%= label_tag "quantity_#{tier.id}", "#{tier.name} quantity" %>
+              <%= number_field_tag "tickets_by_tier[#{tier.id}]", 0,
+                                  id: "quantity_#{tier.id}", min: 0,
+                                  max: tier.seats_left, step: 1 %>
+            <% end %>
+          </p>
+        <% end %>
+        <%= submit_tag "Book tickets" %>
+      </fieldset>
+    <% end %>
+  <% end %>
+<% end %>

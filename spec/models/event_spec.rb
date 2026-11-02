@@ -38,6 +38,19 @@ RSpec.describe Event, type: :model do
     expect(Event.new).to be_pending
   end
 
+  describe ".publicly_visible" do
+    it "returns approved future events soonest first and excludes other events" do
+      later = FactoryBot.create(:event, status: :approved, starts_at: 2.days.from_now)
+      soonest = FactoryBot.create(:event, status: :approved, starts_at: 1.day.from_now)
+      FactoryBot.create(:event, status: :pending, starts_at: 3.days.from_now)
+      FactoryBot.create(:event, status: :rejected, starts_at: 4.days.from_now)
+      past = FactoryBot.create(:event, status: :approved)
+      past.update_column(:starts_at, 1.day.ago)
+
+      expect(Event.publicly_visible).to eq([ soonest, later ])
+    end
+  end
+
   it "rejects a start time in the past" do
     event = FactoryBot.build(:event, starts_at: 1.day.ago)
 
@@ -54,5 +67,136 @@ RSpec.describe Event, type: :model do
 
   it "rejects an unknown status" do
     expect(FactoryBot.build(:event, status: "archived")).not_to be_valid
+  end
+
+  describe "ticket tier capacity validation" do
+    let(:organizer) { FactoryBot.create(:user, :organizer) }
+
+    let(:event) do
+      FactoryBot.create(
+        :event,
+        organizer: organizer,
+        total_capacity: 100
+      )
+    end
+
+    it "allows combined tier capacity equal to event capacity" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 60
+      )
+
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "VIP",
+        capacity: 40
+      )
+
+      expect(event.reload).to be_valid
+    end
+
+    it "rejects combined tier capacity exceeding event capacity" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 60
+      )
+
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "VIP",
+        capacity: 40
+      )
+
+      event.total_capacity = 99
+
+      expect(event).not_to be_valid
+      expect(event.errors[:total_capacity]).to include(
+        "cannot be less than the combined ticket tier capacities"
+      )
+    end
+  end
+
+  describe "#seats_left" do
+    let(:organizer) { FactoryBot.create(:user, :organizer) }
+
+    let(:event) do
+      FactoryBot.create(
+        :event,
+        organizer: organizer,
+        total_capacity: 100
+      )
+    end
+
+    it "returns the total remaining seats across all ticket tiers" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 60,
+        tickets_sold: 20
+      )
+
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "VIP",
+        capacity: 40,
+        tickets_sold: 10
+      )
+
+      expect(event.seats_left).to eq(70)
+    end
+
+    it "returns zero when no seats remain" do
+      FactoryBot.create(
+        :ticket_tier,
+        event: event,
+        name: "General",
+        capacity: 100,
+        tickets_sold: 100
+      )
+
+      expect(event.seats_left).to eq(0)
+    end
+
+    it "returns zero when the event has no ticket tiers" do
+      expect(event.seats_left).to eq(0)
+    end
+  end
+
+  describe "approval decisions" do
+    it "approves a pending event" do
+      event = FactoryBot.create(:event, status: :pending)
+
+      expect(event.approve).to be(true)
+      expect(event.reload).to be_approved
+    end
+
+    it "rejects a pending event" do
+      event = FactoryBot.create(:event, status: :pending)
+
+      expect(event.reject).to be(true)
+      expect(event.reload).to be_rejected
+    end
+
+    %i[approved rejected].each do |initial_status|
+      %i[approve reject].each do |action|
+        it "does not #{action} an #{initial_status} event" do
+          event = FactoryBot.create(:event, status: initial_status)
+
+          expect(event.public_send(action)).to be(false)
+          expect(event.errors[:status]).to include(
+            "can only be changed while pending"
+          )
+          expect(event.reload.status).to eq(initial_status.to_s)
+        end
+      end
+    end
   end
 end
