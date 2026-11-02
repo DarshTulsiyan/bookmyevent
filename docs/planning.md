@@ -1,6 +1,6 @@
 # BookMyEvent Planning Discussion
 
-Date: 2026-11-02  
+Date: 2026-11-02
 Project team: Team Earth
 
 This document records the overall project plan for BookMyEvent.
@@ -67,15 +67,15 @@ Priorities use lower numbers for higher priority. Points are relative estimates.
 
 Build the account and role foundation first. Add organizer event creation and ticket tiers, then event approval and public browsing. Complete attendee booking and sold-out handling with capacity protections.
 
-Planned stories: US-01, US-02, US-03, US-04, US-05, US-07, and US-08.  
+Planned stories: US-01, US-02, US-03, US-04, US-05, US-07, and US-08.
 Planned estimate: **27 points**.
 
 ### Sprint 2 — Event operations and extensions
 
 Add organizer check-in, duplicate-use prevention, and role/ownership access protections. Provide organizer and admin dashboards. If essential scope is complete and capacity permits, implement the waitlist, analytics, and venue-proof stretch stories.
 
-Planned stories: US-06, US-09, US-10, US-11, and US-12.  
-Stretch stories: US-13, US-14, and US-15.  
+Planned stories: US-06, US-09, US-10, US-11, and US-12.
+Stretch stories: US-13, US-14, and US-15.
 Planned estimate: **15 essential points**, plus **13 stretch points**.
 
 ## Collaboration Plan
