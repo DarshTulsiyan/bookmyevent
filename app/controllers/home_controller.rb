@@ -5,5 +5,6 @@ class HomeController < ApplicationController
   end
 
   def account
+    @organized_events = current_user.organized_events.order(starts_at: :asc) if current_user.organizer?
   end
 end
