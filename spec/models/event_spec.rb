@@ -38,6 +38,19 @@ RSpec.describe Event, type: :model do
     expect(Event.new).to be_pending
   end
 
+  describe ".publicly_visible" do
+    it "returns approved future events soonest first and excludes other events" do
+      later = FactoryBot.create(:event, status: :approved, starts_at: 2.days.from_now)
+      soonest = FactoryBot.create(:event, status: :approved, starts_at: 1.day.from_now)
+      FactoryBot.create(:event, status: :pending, starts_at: 3.days.from_now)
+      FactoryBot.create(:event, status: :rejected, starts_at: 4.days.from_now)
+      past = FactoryBot.create(:event, status: :approved)
+      past.update_column(:starts_at, 1.day.ago)
+
+      expect(Event.publicly_visible).to eq([ soonest, later ])
+    end
+  end
+
   it "rejects a start time in the past" do
     event = FactoryBot.build(:event, starts_at: 1.day.ago)
 

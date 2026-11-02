@@ -4,7 +4,7 @@ class EventsController < ApplicationController
   before_action :own_event_only, only: %i[edit update]
 
   def index
-    @events = Event.approved.upcoming
+    @events = Event.publicly_visible.includes(:ticket_tiers)
   end
 
   def show

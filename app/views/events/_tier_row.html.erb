@@ -1,0 +1,18 @@
+<tr>
+  <td><%= tier.name %></td>
+  <td><%= tier.sold_out? ? "Sold Out" : tier.seats_left %></td>
+  <td>
+    <% if tier.sold_out? %>
+      <span>Sold Out</span>
+    <% elsif current_user&.attendee? %>
+      <%= form_with url: tickets_path, data: { turbo: false } do %>
+        <%= hidden_field_tag :ticket_tier_id, tier.id %>
+        <%= submit_tag "Book" %>
+      <% end %>
+    <% elsif current_user.nil? %>
+      <%= link_to "Log in to book", login_path %>
+    <% else %>
+      <span>Available to attendees</span>
+    <% end %>
+  </td>
+</tr>

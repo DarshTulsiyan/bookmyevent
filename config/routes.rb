@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  root "home#index"
+  root "events#index"
 
   get "/signup", to: "users#new", as: :signup
   post "/signup", to: "users#create"
@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   get "/account", to: "home#account", as: :account
 
   resources :bookings, only: :create
+  resources :tickets, only: :create
   get "/my-tickets", to: "tickets#index", as: :my_tickets
 
   get "/admin", to: "admin#dashboard", as: :admin
