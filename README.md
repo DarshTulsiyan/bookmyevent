@@ -123,17 +123,6 @@ Tests cover authentication, permissions, event management, approval decisions, t
 
 SimpleCov is included as a dependency, but coverage reporting is not currently configured.
 
-## Code Quality Checks
-
-```bash
-bin/rubocop
-bin/brakeman --no-pager
-bin/bundler-audit
-bin/importmap audit
-```
-
-GitHub Actions runs lint and security checks on pull requests and pushes to `main`. RSpec and Cucumber currently need to be run separately.
-
 ## Project Structure
 
 ```text
