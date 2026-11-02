@@ -10,7 +10,7 @@
 
 ### US-01: User Sign Up, Log In, and Log Out
 
-* **Priority:** 1 | **Points:** 3 | **Sprint:** 1 | **Role:** All Users
+* **Priority:** 1 | **Points:** 5 | **Sprint:** 1 | **Role:** All Users
 * **User Story:** As a user, I want to create an account, log in, and log out securely so that I can access features specific to my role.
 * **Acceptance Criteria:**
   * System allows sign up with valid details and role selection (Attendee, Organizer, Admin).
@@ -20,7 +20,7 @@
 
 ### US-02: Organizer Creates an Event
 
-* **Priority:** 2 | **Points:** 3 | **Sprint:** 1 | **Role:** Organizer
+* **Priority:** 2 | **Points:** 5 | **Sprint:** 1 | **Role:** Organizer
 * **User Story:** As an organizer, I want to create an event with title, description, venue, date, and capacity so that it can be submitted for approval.
 * **Acceptance Criteria:**
   * Organizer enters title, description, venue, date, and total capacity.
@@ -29,7 +29,7 @@
 
 ### US-03: Organizer Defines Ticket Tiers with Capacity
 
-* **Priority:** 3 | **Points:** 3 | **Sprint:** 1 | **Role:** Organizer
+* **Priority:** 3 | **Points:** 5 | **Sprint:** 1 | **Role:** Organizer
 * **User Story:** As an organizer, I want to define ticket tiers with separate capacities so that I can offer options without exceeding overall event capacity.
 * **Acceptance Criteria:**
   * Organizer sets tier names and individual capacities (e.g., General Admission, VIP).
@@ -38,7 +38,7 @@
 
 ### US-04: Attendee Browses Public Events
 
-* **Priority:** 4 | **Points:** 3 | **Sprint:** 1 | **Role:** Attendee / Visitor
+* **Priority:** 4 | **Points:** 2 | **Sprint:** 1 | **Role:** Attendee / Visitor
 * **User Story:** As an attendee, I want to browse approved public events so that I can view event details and available spots.
 * **Acceptance Criteria:**
   * System displays approved public events with title, date, venue, and available spots.
@@ -75,7 +75,7 @@
 
 ### US-08: Sold-Out Message When Capacity Is Full
 
-* **Priority:** 6 | **Points:** 3 | **Sprint:** 1 | **Role:** Attendee
+* **Priority:** 6 | **Points:** 2 | **Sprint:** 1 | **Role:** Attendee
 * **User Story:** As an attendee, I want to see a clear "Sold Out" message when an event or tier is full so that I cannot register for full events.
 * **Acceptance Criteria:**
   * System blocks registration when capacity reaches 0.
