@@ -137,3 +137,14 @@
   * Displays total registrations and tier breakdown.
   * Displays checked-in count and check-in percentage ($\text{Check-in Rate} = \frac{\text{Checked-in}}{\text{Registrations}} \times 100\%$).
   * Accessible only by event owner.
+
+### US-15 (Stretch): Organizer Uploads Venue Booking Proof for Admin Review
+
+* **Priority:** 15 | **Points:** 3 | **Sprint:** 2 | **Role:** Organizer / Admin
+* **User Story:** As an organizer, I want to upload proof that I have booked the venue (a PDF or image of the booking confirmation) when I submit an event so that the admin can verify it before approving the event.
+* **Acceptance Criteria:**
+  * Organizer can attach a venue booking proof file when creating or editing an event.
+  * System accepts only PDF, JPG, and PNG files and rejects other file types and files that are too large, with an error message.
+  * An event cannot be approved until a venue booking proof is attached.
+  * Admin can view or download the attached proof while reviewing the pending event, then approve or reject it.
+  * Only the event's organizer and admins can access the proof file.
