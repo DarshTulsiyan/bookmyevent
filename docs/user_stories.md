@@ -45,15 +45,17 @@
   * User can click an event to view full details.
   * Pending and rejected events are hidden from the public.
 
-### US-05: Attendee Registers and Receives a Ticket ID
+### US-05: Attendee Books Tickets and Receives a Booking ID with Ticket IDs
 
 * **Priority:** 5 | **Points:** 5 | **Sprint:** 1 | **Role:** Attendee
-* **User Story:** As an attendee, I want to register for a ticket tier so that I receive a unique numeric Ticket ID.
+* **User Story:** As an attendee, I want to book one or more tickets across the tiers of an event in a single booking so that I receive one Booking ID with a unique numeric Ticket ID for every seat.
 * **Acceptance Criteria:**
-  * Attendee selects a tier and registers for an available event.
-  * System creates registration and assigns unique numeric Ticket ID.
-  * System decrements available capacity for the selected tier.
-  * Confirmation screen displays the Ticket ID.
+  * Attendee selects quantities for one or more available tiers and books an approved event.
+  * System creates one booking with a unique numeric Booking ID.
+  * System creates one ticket per seat, each with a unique numeric Ticket ID, linked to the booking.
+  * System decrements available capacity for each selected tier.
+  * If any selected tier lacks enough seats, nothing is booked and an error is shown.
+  * My Tickets displays each booking with its Booking ID and all its Ticket IDs.
 
 ### US-06: Organizer Checks In an Attendee by Ticket ID
 
