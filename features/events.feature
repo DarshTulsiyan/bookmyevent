@@ -18,6 +18,14 @@ Feature: Event creation
     When I browse events and open "Spring Concert"
     Then the event page should show "Rudder Auditorium"
 
+  Scenario: Visitor browses approved events and sees available seats
+    Given an approved public event "Public Concert" exists
+    And the public event has a "General" tier with capacity 20 and 8 sold
+    And a pending event "Pending Concert" exists
+    When I visit the public events page
+    Then the public event shows its title, date, venue, and seats left
+    And the pending event is not listed
+
   Scenario: Attendee cannot create events
     Given I am logged in to my attendee account
     When I visit the new event page

@@ -39,14 +39,12 @@
         <tr>
           <th scope="col">Tier</th>
           <th scope="col">Seats left</th>
+          <th scope="col">Booking</th>
         </tr>
       </thead>
       <tbody>
         <% @ticket_tiers.each do |tier| %>
-          <tr>
-            <td><%= tier.name %></td>
-            <td><%= tier.sold_out? ? "Sold Out" : tier.seats_left %></td>
-          </tr>
+          <%= render "tier_row", tier: tier %>
         <% end %>
       </tbody>
     </table>

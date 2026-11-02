@@ -5,11 +5,9 @@
     <% @events.each do |event| %>
       <li>
         <h2><%= link_to event.title, event_path(event) %></h2>
-        <p>
-          <%= l event.starts_at, format: :long %>
-          &middot;
-          <%= event.venue %>
-        </p>
+        <p>Date: <%= l event.starts_at, format: :long %></p>
+        <p>Venue: <%= event.venue %></p>
+        <p>Seats left: <%= event.seats_left %></p>
       </li>
     <% end %>
   </ul>

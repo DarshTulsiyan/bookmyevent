@@ -87,14 +87,31 @@ RSpec.describe "Events", type: :request do
     let!(:pending) { FactoryBot.create(:event, title: "Pending Show") }
 
     it "lists only upcoming approved events, without login" do
+      FactoryBot.create(:ticket_tier, event: approved, name: "VIP", capacity: 10, tickets_sold: 4)
+      rejected = FactoryBot.create(:event, title: "Rejected Show", status: :rejected)
       past = FactoryBot.create(:event, title: "Past Show", status: :approved)
       past.update_column(:starts_at, 1.day.ago)
 
       get events_path
 
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Approved Show", "Rudder Auditorium", "Seats left: 6")
+      expect(response.body).not_to include("Pending Show", "Rejected Show", "Past Show")
+      expect(rejected).to be_rejected
+    end
+
+    it "uses the public event list as the home page" do
+      get root_path
+
+      expect(response).to have_http_status(:ok)
       expect(response.body).to include("Approved Show")
-      expect(response.body).not_to include("Pending Show", "Past Show")
+      expect(response.body).not_to include("Pending Show")
+    end
+
+    it "returns 404 when a visitor opens a pending event" do
+      get event_path(pending)
+
+      expect(response).to have_http_status(:not_found)
     end
 
     it "shows an approved event with its tiers to an attendee" do

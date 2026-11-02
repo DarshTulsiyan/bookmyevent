@@ -14,6 +14,7 @@ class Event < ApplicationRecord
   }, default: :pending, validate: true
 
   scope :upcoming, -> { where(starts_at: Time.current..).order(:starts_at) }
+  scope :publicly_visible, -> { approved.where(starts_at: Time.current..).order(:starts_at) }
 
   validates :title, presence: true
   validates :venue, presence: true
@@ -29,11 +30,15 @@ class Event < ApplicationRecord
 
   # Approved events are public; others only to their organizer and admins.
   def visible_to?(user)
-    approved? || (user.present? && (user == organizer || user.admin?))
+    publicly_visible? || (user.present? && (user == organizer || user.admin?))
+  end
+
+  def publicly_visible?
+    approved? && starts_at.present? && starts_at >= Time.current
   end
 
   def seats_left
-    ticket_tiers.reload.sum { |tier| tier.seats_left }
+    ticket_tiers.sum(&:seats_left)
   end
 
   def approve
