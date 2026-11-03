@@ -12,7 +12,8 @@ class User < ApplicationRecord
   enum :role, {
     attendee: 0,
     organizer: 1,
-    admin: 2
+    admin: 2,
+    sudo: 3
   }, validate: true
 
   normalizes :email, with: ->(email) { email.strip.downcase }
@@ -29,4 +30,14 @@ class User < ApplicationRecord
   validates :password,
             length: { minimum: 8 },
             allow_nil: true
+
+  def can_access_role_view?(requested_role)
+    return true if sudo?
+
+    {
+      "attendee" => attendee?,
+      "organizer" => organizer?,
+      "admin" => admin?
+    }.fetch(requested_role.to_s, false)
+  end
 end
