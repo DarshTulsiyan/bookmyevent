@@ -26,7 +26,7 @@
     <% end %>
   </div>
 
-  <% if owner || current_user&.admin? %>
+  <% if owner || current_user&.can_access_role_view?(:admin) %>
     <div class="event-hero__owner">
       <p>Status: <%= event_status_badge(@event) %></p>
 
@@ -39,7 +39,7 @@
   <% end %>
 </section>
 
-<% if @event.pending? && current_user&.admin? %>
+<% if @event.pending? && current_user&.can_access_role_view?(:admin) %>
   <section class="card review-panel" aria-labelledby="review-heading">
     <div>
       <h2 id="review-heading" class="card__title"><%= icon(:shield) %> Awaiting your review</h2>
@@ -110,7 +110,7 @@
             <%= icon(:ticket) %>
             <% if owner %>
               <p>You have not configured ticket tiers for this event yet. <%= link_to "Add tiers", edit_event_path(@event, anchor: "ticket-tiers") %></p>
-            <% elsif current_user&.admin? %>
+            <% elsif current_user&.can_access_role_view?(:admin) %>
               <p>No ticket tiers have been configured for this event.</p>
             <% else %>
               <p>Tickets are not on sale yet.</p>

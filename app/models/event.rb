@@ -32,7 +32,7 @@ class Event < ApplicationRecord
 
   # Approved events are public; others only to their organizer and admins.
   def visible_to?(user)
-    publicly_visible? || (user.present? && (user == organizer || user.admin?))
+    publicly_visible? || (user.present? && (user == organizer || user.can_access_role_view?(:admin)))
   end
 
   def publicly_visible?

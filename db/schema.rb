@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_205047) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_27_000100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -99,7 +99,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_205047) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
-    t.check_constraint "role = ANY (ARRAY[0, 1, 2])", name: "users_role_valid"
+    t.check_constraint "role = ANY (ARRAY[0, 1, 2, 3])", name: "users_role_valid"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

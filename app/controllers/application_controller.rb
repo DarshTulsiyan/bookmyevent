@@ -28,14 +28,14 @@ class ApplicationController < ActionController::Base
 
   def attendee_only
     return unless logged_in_only
-    return if current_user.attendee?
+    return if current_user.can_access_role_view?(:attendee)
 
     redirect_to root_path, alert: "Not authorized", status: :see_other
   end
 
   def organizer_only
     return unless logged_in_only
-    return if current_user.organizer?
+    return if current_user.can_access_role_view?(:organizer)
 
     redirect_to root_path,
                 alert: "Not authorized",
@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
 
   def admin_only
     return unless logged_in_only
-    return if current_user.admin?
+    return if current_user.can_access_role_view?(:admin)
 
     redirect_to root_path,
                 alert: "Not authorized",

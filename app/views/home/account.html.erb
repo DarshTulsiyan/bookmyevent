@@ -10,9 +10,9 @@
     <p>Account type: <span class="role-pill role-pill--<%= current_user.role %>"><%= current_user.role.humanize %></span></p>
   </div>
   <div class="profile__actions">
-    <% if current_user.admin? %>
+    <% if current_user.can_access_role_view?(:admin) %>
       <%= link_to admin_path, class: "btn btn--primary" do %><%= icon(:dashboard, size: 16) %> Open admin dashboard<% end %>
-    <% elsif current_user.organizer? %>
+    <% elsif current_user.can_access_role_view?(:organizer) %>
       <%= link_to new_event_path, class: "btn btn--primary" do %><%= icon(:plus, size: 16) %> Create event<% end %>
     <% else %>
       <%= link_to my_tickets_path, class: "btn btn--primary" do %><%= icon(:ticket, size: 16) %> View my tickets<% end %>
@@ -20,7 +20,50 @@
   </div>
 </section>
 
-<% if current_user.admin? %>
+<% if current_user.sudo? %>
+  <section class="card" aria-labelledby="role-workspaces-heading">
+    <div class="card__head">
+      <div>
+        <h2 id="role-workspaces-heading" class="card__title">Role workspaces</h2>
+        <p class="muted small">Choose a workspace. Organizer records remain scoped to this account.</p>
+      </div>
+    </div>
+    <div class="quick-links">
+      <%= link_to admin_path, class: "quick-link" do %>
+        <span class="info-list__icon"><%= icon(:dashboard) %></span>
+        <span><strong>Admin workspace</strong><span>Review users and events</span></span>
+      <% end %>
+      <%= link_to new_event_path, class: "quick-link" do %>
+        <span class="info-list__icon"><%= icon(:plus) %></span>
+        <span><strong>Organizer workspace</strong><span>Create and manage this account's events</span></span>
+      <% end %>
+      <%= link_to my_tickets_path, class: "quick-link" do %>
+        <span class="info-list__icon"><%= icon(:ticket) %></span>
+        <span><strong>Attendee workspace</strong><span>View this account's bookings and tickets</span></span>
+      <% end %>
+    </div>
+  </section>
+  <% if @organized_events.any? %>
+    <section class="card" aria-labelledby="sudo-events-heading">
+      <h2 id="sudo-events-heading" class="card__title">Events created by this account</h2>
+      <ul class="event-rows">
+        <% @organized_events.each do |event| %>
+          <li class="event-row" style="--hue: <%= event_hue(event) %>">
+            <span class="event-row__swatch" aria-hidden="true"></span>
+            <div class="event-row__main">
+              <%= link_to event.title, event_path(event) %>
+              &mdash; <%= event_status_badge(event) %>
+              <p><%= l event.starts_at, format: :long %> &middot; <%= event.venue %></p>
+            </div>
+            <div class="event-row__actions">
+              <%= link_to "Manage", edit_event_path(event), class: "btn btn--ghost btn--sm" %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+<% elsif current_user.admin? %>
   <div class="quick-links">
     <%= link_to admin_pending_events_path, class: "quick-link" do %>
       <span class="info-list__icon"><%= icon(:clock) %></span>
