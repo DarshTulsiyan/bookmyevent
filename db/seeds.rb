@@ -31,4 +31,8 @@ if Rails.env.production? && (ENV["ADMIN_EMAIL"].present? || ENV["ADMIN_PASSWORD"
   admin.password_confirmation = password
   admin.save!
   puts "Production admin provisioned successfully."
+elsif Rails.env.production?
+  puts "[admin setup] Skipped: ADMIN_EMAIL and ADMIN_PASSWORD are not set on this service."
+else
+  puts "[admin setup] Skipped: Rails environment is #{Rails.env}, not production."
 end
