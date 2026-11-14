@@ -117,25 +117,25 @@ class EventsController < ApplicationController
   end
 
   def authorization_document
-  event = Event.find_by(id: params[:id])
-  user = current_user
+    event = Event.find_by(id: params[:id])
+    user = current_user
 
-  return head :not_found unless event && user
-  return head :not_found unless user.admin? || event.organizer_id == user.id
+    return head :not_found unless event && user
+    return head :not_found unless user.admin? || event.organizer_id == user.id
 
-  document = event.authorization_document
-  return head :not_found unless document.attached?
+    document = event.authorization_document
+    return head :not_found unless document.attached?
 
-  data = document.download
-  response.headers["Cache-Control"] = "private, no-store"
+    data = document.download
+    response.headers["Cache-Control"] = "private, no-store"
 
-  send_data data,
-            filename: document.filename.to_s,
-            type: "application/octet-stream",
-            disposition: "attachment"
-rescue ActiveStorage::FileNotFoundError
-  head :not_found
-end
+    send_data data,
+              filename: document.filename.to_s,
+              type: "application/octet-stream",
+              disposition: "attachment"
+  rescue ActiveStorage::FileNotFoundError
+    head :not_found
+  end
 
   private
 

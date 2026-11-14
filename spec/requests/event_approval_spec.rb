@@ -32,6 +32,21 @@ RSpec.describe "Event approval", type: :request do
       expect(event.rejection_reason).to eq("Permit expired")
     end
 
+    it "keeps a pending event without proof out of the public listing" do
+      patch approve_event_path(event)
+
+      expect(flash[:alert]).to include("must be attached before approval")
+      expect(event.reload).to be_pending
+    end
+
+    it "requires a nonblank rejection reason" do
+      patch reject_event_path(event), params: { rejection_reason: "  " }
+
+      expect(flash[:alert]).to include("can't be blank")
+      expect(event.reload).to be_pending
+      expect(event.rejection_reason).to be_nil
+    end
+
     %i[approved rejected].each do |initial_status|
       %i[approve reject].each do |action|
         it "does not #{action} an #{initial_status} event" do
