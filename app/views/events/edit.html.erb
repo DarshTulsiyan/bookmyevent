@@ -9,3 +9,24 @@
 
   <%= render "events/ticket_tiers" %>
 </section>
+
+<% if @event.submittable_for_review? %>
+  <section aria-labelledby="submit-review-heading">
+    <h2 id="submit-review-heading">Submit for review</h2>
+    <% if @event.rejected? && @event.rejection_reason.present? %>
+      <p>Rejection reason: <%= @event.rejection_reason %></p>
+    <% end %>
+
+    <%= form_with url: submit_for_review_event_path(@event),
+                  method: :patch,
+                  multipart: true,
+                  data: { turbo: false } do |form| %>
+      <%= form.label :authorization_document, "Authorization document" %>
+      <%= form.file_field :authorization_document,
+                          accept: ".pdf,.jpg,.jpeg,.png",
+                          required: true %>
+      <p>PDF, JPG, or PNG. Maximum size is 10 MB.</p>
+      <%= form.submit(@event.rejected? ? "Replace and resubmit" : "Submit for review") %>
+    <% end %>
+  </section>
+<% end %>

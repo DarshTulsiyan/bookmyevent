@@ -30,10 +30,7 @@
               method: :patch,
               class: "admin-review-button" %>
 
-              <%= button_to "Reject",
-              reject_event_path(event),
-              method: :patch,
-              class: "admin-review-button admin-review-button--reject" %>
+              <%= render "events/reject_form", event: event %>
             </td>
           <% end %>
         </tr>

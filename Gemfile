@@ -71,3 +71,5 @@ group :development, :test do
   gem "database_cleaner-active_record"
   gem "simplecov", require: false
 end
+
+gem "aws-sdk-s3", require: false

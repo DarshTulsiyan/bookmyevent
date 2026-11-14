@@ -15,6 +15,7 @@ RSpec.describe "Event approval", type: :request do
     before { log_in(admin) }
 
     it "approves a pending event" do
+      event.authorization_document.attach(io: StringIO.new("%PDF-1.4"), filename: "permit.pdf")
       patch approve_event_path(event)
 
       expect(response).to redirect_to(admin_pending_events_path)
@@ -23,11 +24,12 @@ RSpec.describe "Event approval", type: :request do
     end
 
     it "rejects a pending event" do
-      patch reject_event_path(event)
+      patch reject_event_path(event), params: { rejection_reason: "Permit expired" }
 
       expect(response).to redirect_to(admin_pending_events_path)
       expect(flash[:notice]).to eq("Event rejected.")
       expect(event.reload).to be_rejected
+      expect(event.rejection_reason).to eq("Permit expired")
     end
 
     %i[approved rejected].each do |initial_status|

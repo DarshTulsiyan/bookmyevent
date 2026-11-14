@@ -137,3 +137,14 @@
   * Displays total registrations and tier breakdown.
   * Displays checked-in count and check-in percentage ($\text{Check-in Rate} = \frac{\text{Checked-in}}{\text{Registrations}} \times 100\%$).
   * Accessible only by event owner.
+
+### US-15: Uploading Document Proof
+
+* **User Story:** As an organizer, I want to upload a document that shows I’m authorized to host my event, such as a venue booking confirmation or an event permit, so that an admin can verify it before the event is published on BookMyEvent.
+
+* **Acceptance Criteria:**
+
+  * Organizers must upload a PDF, JPG, or PNG up to 10 MB to submit it for review.
+  * Submission sets the event to Pending Review. Only the organizer and admins can access the document.
+  * Admin approval publishes the event. The document stays private.
+  * Admin rejection requires a reason and keeps the event hidden. The organizer can replace the document and resubmit.

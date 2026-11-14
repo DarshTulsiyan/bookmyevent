@@ -41,6 +41,8 @@ Rails.application.routes.draw do
     member do
       patch :approve
       patch :reject
+      patch :submit_for_review
+      get :authorization_document
     end
   end
 end
