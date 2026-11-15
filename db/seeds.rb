@@ -13,6 +13,7 @@ if Rails.env.development?
   admin = User.find_or_initialize_by(email: "admin@bookmyevent.com")
   admin.name = "BookMyEvent Admin"
   admin.role = :admin
+  admin.admin_access_request_reviewer = true
   admin.password = "admin@123"
   admin.save!
 
@@ -42,6 +43,7 @@ if Rails.env.production? && (ENV["ADMIN_EMAIL"].present? || ENV["ADMIN_PASSWORD"
   admin = User.find_or_initialize_by(email: email)
   admin.name = ENV.fetch("ADMIN_NAME", "BookMyEvent Admin") if admin.new_record?
   admin.role = :admin
+  admin.admin_access_request_reviewer = true
   admin.password = password
   admin.password_confirmation = password
   admin.save!

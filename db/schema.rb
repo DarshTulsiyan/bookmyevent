@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_27_000100) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_27_000400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_27_000100) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "admin_access_requests", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "email", null: false
+    t.text "reason", null: false
+    t.string "password_digest"
+    t.integer "status", default: 0, null: false
+    t.text "reviewer_note"
+    t.bigint "reviewed_by_id"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((email)::text)", name: "index_admin_access_requests_on_pending_email", unique: true, where: "(status = 0)"
+    t.index ["reviewed_by_id"], name: "index_admin_access_requests_on_reviewed_by_id"
+    t.check_constraint "status = ANY (ARRAY[0, 1, 2])", name: "admin_access_requests_status_valid"
   end
 
   create_table "bookings", force: :cascade do |t|
@@ -98,12 +114,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_27_000100) do
     t.boolean "suspended", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "admin_access_request_reviewer", default: false, null: false
     t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
     t.check_constraint "role = ANY (ARRAY[0, 1, 2, 3])", name: "users_role_valid"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "admin_access_requests", "users", column: "reviewed_by_id"
   add_foreign_key "bookings", "events"
   add_foreign_key "bookings", "users"
   add_foreign_key "events", "users", column: "organizer_id"
