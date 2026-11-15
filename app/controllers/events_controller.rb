@@ -171,6 +171,15 @@ class EventsController < ApplicationController
     blob.upload_without_unfurling(io)
     true
   rescue StandardError => error
+    message = error.message.to_s.dup
+    %w[B2_KEY_ID B2_APPLICATION_KEY].each do |name|
+      credential = ENV[name]
+      message.gsub!(credential, "[FILTERED]") if credential.present?
+    end
+    Rails.logger.error(
+      "Authorization document upload failed event_id=#{@event.id} " \
+      "error=#{error.class} message=#{message.lines.first.to_s.strip.truncate(500).inspect}"
+    )
     Rails.error.report(error)
     false
   end
