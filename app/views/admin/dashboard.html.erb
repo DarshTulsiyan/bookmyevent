@@ -1,61 +1,96 @@
 <% content_for :title, "Admin dashboard | BookMyEvent" %>
+<% draft_count = [ @event_count - @pending_event_count - @published_event_count - @rejected_event_count, 0 ].max %>
+<%
+  status_segments = [
+    [ "Published", @published_event_count, "approved" ],
+    [ "Pending review", @pending_event_count, "pending" ],
+    [ "Rejected", @rejected_event_count, "rejected" ],
+    [ "Draft", draft_count, "draft" ]
+  ]
+%>
 
-<header>
-  <h1>Admin dashboard</h1>
-  <p>Review account and event activity.</p>
+<header class="page-header">
+  <div>
+    <span class="eyebrow"><%= icon(:shield, size: 14) %> Admin</span>
+    <h1>Admin dashboard</h1>
+    <p>Review account and event activity.</p>
+  </div>
+  <% if @pending_event_count.positive? %>
+    <%= link_to admin_pending_events_path, class: "btn btn--primary" do %>
+      <%= icon(:clock, size: 16) %> Review <%= pluralize(@pending_event_count, "pending event") %>
+    <% end %>
+  <% end %>
 </header>
 
 <%= render "navigation" %>
 
 <section aria-labelledby="summary-heading">
-  <h2 id="summary-heading">Summary</h2>
-  <dl>
-    <div>
+  <h2 id="summary-heading" class="sr-only">Summary</h2>
+  <dl class="stat-grid">
+    <div class="stat-card">
+      <span class="stat-card__icon"><%= icon(:users) %></span>
       <dt>Total users</dt>
       <dd><%= @user_count %></dd>
     </div>
-    <div>
+    <div class="stat-card stat-card--info">
+      <span class="stat-card__icon"><%= icon(:calendar) %></span>
       <dt>Total events</dt>
       <dd><%= @event_count %></dd>
     </div>
-    <div>
+    <div class="stat-card stat-card--warning">
+      <span class="stat-card__icon"><%= icon(:clock) %></span>
       <dt>Events awaiting approval</dt>
       <dd><%= link_to @pending_event_count, admin_pending_events_path %></dd>
     </div>
-    <div>
+    <div class="stat-card stat-card--success">
+      <span class="stat-card__icon"><%= icon(:globe) %></span>
       <dt>Published events</dt>
       <dd><%= link_to @published_event_count, admin_published_events_path %></dd>
     </div>
-    <div>
+    <div class="stat-card stat-card--danger">
+      <span class="stat-card__icon"><%= icon(:ban) %></span>
       <dt>Rejected events</dt>
       <dd><%= link_to @rejected_event_count, admin_rejected_events_path %></dd>
     </div>
   </dl>
 </section>
 
-<section aria-labelledby="role-breakdown-heading">
-  <h2 id="role-breakdown-heading">Users by role</h2>
-  <table>
-    <caption>Account counts by role</caption>
-    <thead>
-      <tr>
-        <th scope="col">Role</th>
-        <th scope="col">Users</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @user_role_counts.each do |role, count| %>
-        <tr>
-          <th scope="row"><%= role.humanize %></th>
-          <td><%= count %></td>
-        </tr>
+<div class="dash-grid">
+  <section class="card" aria-labelledby="pipeline-heading">
+    <h2 id="pipeline-heading" class="card__title"><%= icon(:dashboard) %> Event pipeline</h2>
+    <p class="muted small" style="margin:0">Where every event currently sits in the review flow.</p>
+    <div class="stacked-bar" role="img" aria-label="Events by status">
+      <% status_segments.each do |_label, count, tone| %>
+        <% next if count.zero? %>
+        <span class="tone-<%= tone %>" style="flex: <%= count %>"></span>
       <% end %>
-    </tbody>
-  </table>
-</section>
+    </div>
+    <ul class="legend">
+      <% status_segments.each do |label, count, tone| %>
+        <li><span class="dot tone-<%= tone %>"></span><%= label %><strong><%= count %></strong></li>
+      <% end %>
+    </ul>
+  </section>
 
-<section aria-labelledby="user-accounts-heading">
-  <h2 id="user-accounts-heading">User accounts</h2>
-  <p><%= link_to "View all users", admin_users_path %></p>
+  <section class="card" aria-labelledby="role-breakdown-heading">
+    <h2 id="role-breakdown-heading" class="card__title"><%= icon(:users) %> Users by role</h2>
+    <p class="muted small" style="margin:0">Account counts by role</p>
+    <ul class="bar-list">
+      <% @user_role_counts.each do |role, count| %>
+        <% share = @user_count.positive? ? (count * 100.0 / @user_count).round : 0 %>
+        <li>
+          <div class="bar-list__label"><span><%= role.humanize %>: <%= count %></span><span><%= share %>%</span></div>
+          <%= meter(share, label: "#{role.humanize} share of users") %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+</div>
+
+<section class="card card--flush" aria-labelledby="user-accounts-heading">
+  <div class="card__head" style="padding: 1.25rem 1.25rem 0">
+    <h2 id="user-accounts-heading" class="card__title"><%= icon(:user) %> User accounts</h2>
+    <%= link_to admin_users_path, class: "btn btn--ghost btn--sm" do %>View all users <%= icon(:arrow_right, size: 15) %><% end %>
+  </div>
   <%= render "users_table", users: @users %>
 </section>

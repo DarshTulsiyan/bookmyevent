@@ -1,5 +1,5 @@
 <% if event.errors.any? %>
-  <div role="alert">
+  <div role="alert" class="form-errors">
     <h2>Please correct the following:</h2>
 
     <ul>
@@ -11,34 +11,54 @@
 <% end %>
 
 <%= form_with model: event,
+              class: "form",
               data: { turbo: false } do |form| %>
-  <p>
-    <%= form.label :title %><br>
-    <%= form.text_field :title, required: true %>
-  </p>
+  <div class="field">
+    <%= form.label :title %>
+    <%= form.text_field :title,
+                        required: true,
+                        placeholder: "e.g. Spring Concert",
+                        data: { preview_target: "title", action: "input->preview#update" } %>
+  </div>
 
-  <p>
-    <%= form.label :description %><br>
-    <%= form.text_area :description, rows: 5 %>
-  </p>
+  <div class="field">
+    <%= form.label :description %>
+    <%= form.text_area :description,
+                       rows: 5,
+                       placeholder: "What should attendees know? Line-up, agenda, dress code…",
+                       data: { preview_target: "description", action: "input->preview#update" } %>
+  </div>
 
-  <p>
-    <%= form.label :venue %><br>
-    <%= form.text_field :venue, required: true %>
-  </p>
+  <div class="field-grid">
+    <div class="field">
+      <%= form.label :venue %>
+      <%= form.text_field :venue,
+                          required: true,
+                          placeholder: "e.g. Rudder Auditorium",
+                          data: { preview_target: "venue", action: "input->preview#update" } %>
+    </div>
 
-  <p>
-    <%= form.label :starts_at, "Starts at" %><br>
-    <%= form.datetime_local_field :starts_at, required: true %>
-  </p>
+    <div class="field">
+      <%= form.label :starts_at, "Starts at" %>
+      <%= form.datetime_local_field :starts_at,
+                                    required: true,
+                                    data: { controller: "datetime", preview_target: "startsAt", action: "input->preview#update" } %>
+    </div>
+  </div>
 
-  <p>
-    <%= form.label :total_capacity, "Total capacity" %><br>
+  <div class="field">
+    <%= form.label :total_capacity, "Total capacity" %>
     <%= form.number_field :total_capacity,
                           required: true,
                           min: 1,
-                          step: 1 %>
-  </p>
+                          step: 1,
+                          placeholder: "100",
+                          data: { preview_target: "capacity", action: "input->preview#update" } %>
+    <p class="field__hint">The combined capacity of all ticket tiers can't exceed this number.</p>
+  </div>
 
-  <%= form.submit %>
+  <div class="form-actions">
+    <%= form.submit class: "btn btn--primary" %>
+    <%= link_to "Cancel", (event.persisted? ? event_path(event) : events_path), class: "btn btn--ghost" %>
+  </div>
 <% end %>

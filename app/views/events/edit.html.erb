@@ -1,32 +1,73 @@
-<h1>Edit event</h1>
+<% saved_title = @event.title_in_database.presence || @event.title %>
+<% content_for :title, "Edit #{saved_title} | BookMyEvent" %>
 
-<p>Status: <%= event_status_badge(@event) %></p>
+<div class="page-header">
+  <div>
+    <%= link_to account_path, class: "back-link" do %><%= icon(:arrow_left, size: 15) %> Back to my events<% end %>
+    <h1>Edit event</h1>
+    <p><%= saved_title %></p>
+  </div>
+  <div class="page-header__actions">
+    <span class="chip">Status: <%= event_status_badge(@event) %></span>
+    <%= link_to event_path(@event), class: "btn btn--ghost" do %><%= icon(:eye, size: 16) %> View event page<% end %>
+  </div>
+</div>
 
-<%= render "events/form", event: @event %>
+<%= render "events/steps" %>
 
-<section id="ticket-tiers" aria-labelledby="ticket-tiers-heading">
-  <h2 id="ticket-tiers-heading">Ticket tiers</h2>
+<div class="edit-grid">
+  <section class="card" aria-labelledby="details-heading">
+    <h2 id="details-heading" class="card__title"><%= icon(:edit) %> Event details</h2>
+    <%= render "events/form", event: @event %>
+  </section>
 
-  <%= render "events/ticket_tiers" %>
-</section>
+  <aside class="stack">
+    <%= render "events/capacity_card" %>
+
+    <% if @event.rejected? && @event.rejection_reason.present? %>
+      <div class="callout callout--danger">
+        <%= icon(:alert) %>
+        <div>
+          <strong>Changes requested</strong>
+          <p>Rejection reason: <%= @event.rejection_reason %></p>
+        </div>
+      </div>
+    <% elsif @event.pending? %>
+      <div class="callout callout--warning"><%= icon(:clock) %><p>An admin is reviewing this event. You'll see it go live once it's approved.</p></div>
+    <% elsif @event.approved? %>
+      <div class="callout callout--info"><%= icon(:globe) %><p>This event is live on the public events page.</p></div>
+    <% end %>
+  </aside>
+</div>
+
+<%= render "events/tiers_panel" %>
 
 <% if @event.submittable_for_review? %>
-  <section aria-labelledby="submit-review-heading">
-    <h2 id="submit-review-heading">Submit for review</h2>
-    <% if @event.rejected? && @event.rejection_reason.present? %>
-      <p>Rejection reason: <%= @event.rejection_reason %></p>
-    <% end %>
+  <section class="card" aria-labelledby="submit-review-heading">
+    <h2 id="submit-review-heading" class="card__title"><%= icon(:shield) %> Submit for review</h2>
+    <p class="muted">Upload your venue authorization or permit so an admin can verify and publish the event.</p>
 
     <%= form_with url: submit_for_review_event_path(@event),
                   method: :patch,
                   multipart: true,
+                  class: "form",
                   data: { turbo: false } do |form| %>
       <%= form.label :authorization_document, "Authorization document" %>
-      <%= form.file_field :authorization_document,
-                          accept: ".pdf,.jpg,.jpeg,.png",
-                          required: true %>
-      <p>PDF, JPG, or PNG. Maximum size is 10 MB.</p>
-      <%= form.submit(@event.rejected? ? "Replace and resubmit" : "Submit for review") %>
+      <div class="dropzone"
+           data-controller="dropzone"
+           data-action="dragenter->dropzone#over dragover->dropzone#over dragleave->dropzone#leave drop->dropzone#leave">
+        <%= form.file_field :authorization_document,
+                            accept: ".pdf,.jpg,.jpeg,.png",
+                            required: true,
+                            class: "dropzone__input",
+                            data: { dropzone_target: "input", action: "change->dropzone#select" } %>
+        <div class="dropzone__icon" data-dropzone-target="icon"><%= icon(:upload, size: 24) %></div>
+        <p class="dropzone__title" data-dropzone-target="title">Drag &amp; drop your document here, or <span class="link">browse</span></p>
+        <p class="dropzone__hint" data-dropzone-target="hint">PDF, JPG, or PNG. Maximum size is 10 MB.</p>
+      </div>
+      <div class="form-actions">
+        <%= form.submit(@event.rejected? ? "Replace and resubmit" : "Submit for review", class: "btn btn--primary") %>
+      </div>
     <% end %>
   </section>
 <% end %>

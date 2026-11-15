@@ -1,9 +1,9 @@
-<nav aria-label="Admin navigation">
+<nav class="tabs" aria-label="Admin navigation">
   <ul>
-    <li><%= link_to "Dashboard", admin_path %></li>
-    <li><%= link_to "Users", admin_users_path %></li>
-    <li><%= link_to "Events awaiting approval", admin_pending_events_path %></li>
-    <li><%= link_to "Published events", admin_published_events_path %></li>
-    <li><%= link_to "Rejected events", admin_rejected_events_path %></li>
+    <li><%= admin_tab "Dashboard", admin_path, :dashboard %></li>
+    <li><%= admin_tab "Users", admin_users_path, :users %></li>
+    <li><%= admin_tab "Events awaiting approval", admin_pending_events_path, :clock, count: Event.pending.count %></li>
+    <li><%= admin_tab "Published events", admin_published_events_path, :globe %></li>
+    <li><%= admin_tab "Rejected events", admin_rejected_events_path, :ban %></li>
   </ul>
 </nav>

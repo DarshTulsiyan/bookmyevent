@@ -1,30 +1,59 @@
 <% if !@event.approved? %>
-  <p>Booking is not open for this event.</p>
+  <div class="booking-note"><%= icon(:clock) %><p>Booking is not open for this event.</p></div>
 <% elsif !current_user %>
-  <p><%= link_to "Log in to book tickets", login_path %></p>
+  <p class="muted small">Sign in with an attendee account to reserve seats.</p>
+  <%= link_to "Log in to book tickets", login_path, class: "btn btn--primary btn--block btn--lg" %>
+  <p class="muted small" style="text-align:center; margin: 0.75rem 0 0">New here? <%= link_to "Create an account", signup_path %></p>
 <% elsif current_user.attendee? %>
   <% if @ticket_tiers.all?(&:sold_out?) %>
-    <p>Sold Out</p>
+    <div class="sold-out-panel">
+      <%= icon(:ban, size: 28) %>
+      <p>Sold Out</p>
+      <span class="small">Every tier for this event has been booked.</span>
+    </div>
   <% else %>
-    <%= form_with url: bookings_path, data: { turbo: false } do %>
+    <%= form_with url: bookings_path, class: "booking-form", data: { turbo: false, controller: "quantity" } do %>
       <%= hidden_field_tag :event_id, @event.id %>
       <fieldset>
         <legend>Choose your tickets</legend>
-        <p>Choose quantities for one or more tiers. Booking completes immediately.</p>
-        <% @ticket_tiers.each do |tier| %>
-          <p>
-            <% if tier.sold_out? %>
-              <span><%= tier.name %>: Sold Out</span>
-            <% else %>
-              <%= label_tag "quantity_#{tier.id}", "#{tier.name} quantity" %>
-              <%= number_field_tag "tickets_by_tier[#{tier.id}]", 0,
-                                  id: "quantity_#{tier.id}", min: 0,
-                                  max: tier.seats_left, step: 1 %>
-            <% end %>
-          </p>
-        <% end %>
-        <%= submit_tag "Book tickets" %>
+        <p class="muted small">Choose quantities for one or more tiers. Booking completes immediately.</p>
+
+        <div class="qty-list">
+          <% @ticket_tiers.each do |tier| %>
+            <div class="qty-row <%= "is-sold-out" if tier.sold_out? %>">
+              <% if tier.sold_out? %>
+                <span class="qty-row__name"><%= tier.name %>: Sold Out</span>
+                <span class="chip chip--danger">Sold out</span>
+              <% else %>
+                <div>
+                  <label for="quantity_<%= tier.id %>" class="qty-row__name"><%= tier.name %><span class="sr-only"> quantity</span></label>
+                  <span class="qty-row__meta"><%= pluralize(tier.seats_left, "seat") %> left</span>
+                </div>
+                <div class="stepper">
+                  <button type="button" class="stepper__btn" aria-label="One fewer <%= tier.name %> ticket" data-action="quantity#decrement"><%= icon(:minus, size: 16) %></button>
+                  <%= number_field_tag "tickets_by_tier[#{tier.id}]", 0,
+                                      id: "quantity_#{tier.id}", min: 0,
+                                      max: tier.seats_left, step: 1,
+                                      inputmode: "numeric",
+                                      class: "stepper__input",
+                                      data: { quantity_target: "input", tier_name: tier.name, action: "input->quantity#update" } %>
+                  <button type="button" class="stepper__btn" aria-label="One more <%= tier.name %> ticket" data-action="quantity#increment"><%= icon(:plus, size: 16) %></button>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="booking-summary" aria-live="polite">
+          <span class="muted">Your selection</span>
+          <strong data-quantity-target="total">0 tickets</strong>
+        </div>
+        <p class="booking-summary__detail muted small" data-quantity-target="breakdown">Use + and − to pick your seats.</p>
+
+        <%= submit_tag "Book tickets", class: "btn btn--primary btn--block btn--lg", data: { quantity_target: "submit" } %>
       </fieldset>
     <% end %>
   <% end %>
+<% else %>
+  <div class="booking-note"><%= icon(:users) %><p>Ticket booking is available to attendee accounts.</p></div>
 <% end %>

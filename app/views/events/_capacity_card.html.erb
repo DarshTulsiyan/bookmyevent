@@ -1,0 +1,12 @@
+<% summary = tier_summary(@event) %>
+<div id="capacity-card" class="card">
+  <h3 class="card__title"><%= icon(:users) %> Capacity allocation</h3>
+  <p class="big-number" style="margin: 0.75rem 0 0.25rem"><%= summary[:allocated] %><span class="muted" style="font-size:1rem; font-weight:600"> / <%= summary[:total] %> seats</span></p>
+  <p class="muted small">assigned to ticket tiers</p>
+  <%= meter(summary[:allocation_percent], label: "Seats assigned to ticket tiers") %>
+  <div class="stat-row">
+    <div><strong><%= summary[:stats][:sold] %></strong><span>Sold</span></div>
+    <div><strong><%= summary[:stats][:left] %></strong><span>Open</span></div>
+    <div><strong><%= [ summary[:unassigned], 0 ].max %></strong><span>Unassigned</span></div>
+  </div>
+</div>

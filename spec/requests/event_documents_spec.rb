@@ -95,6 +95,28 @@ RSpec.describe "Event authorization documents", type: :request do
       end
     end
 
+    it "lets an admin view a verified PDF inline with ?view=1" do
+      event.authorization_document.blob.update!(content_type: "application/pdf")
+      log_in(FactoryBot.create(:user, role: :admin))
+      get authorization_document_event_path(event, view: 1)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to eq(pdf)
+      expect(response.media_type).to eq("application/pdf")
+      expect(response.headers["Content-Disposition"]).to include("inline", "permit.pdf")
+      expect(response.headers["X-Content-Type-Options"]).to eq("nosniff")
+      expect(response.headers["Cache-Control"]).to include("no-store")
+    end
+
+    it "still forces a download for ?view=1 when the type is not viewable" do
+      event.authorization_document.blob.update!(content_type: "text/html")
+      log_in(event.organizer)
+      get authorization_document_event_path(event, view: 1)
+
+      expect(response.media_type).to eq("application/octet-stream")
+      expect(response.headers["Content-Disposition"]).to include("attachment")
+    end
+
     it "denies anonymous visitors and unrelated accounts even though the event is public" do
       get event_path(event)
       expect(response).to have_http_status(:ok)

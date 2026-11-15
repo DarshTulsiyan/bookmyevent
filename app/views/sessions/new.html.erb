@@ -1,25 +1,56 @@
-<h1>Log in</h1>
+<% content_for :title, "Log in | BookMyEvent" %>
 
-<%= form_with url: login_path,
-              data: { turbo: false } do |form| %>
-  <p>
-    <%= form.label :email %><br>
-    <%= form.email_field :email,
-                         required: true,
-                         autocomplete: "email" %>
-  </p>
+<div class="auth">
+  <aside class="auth__aside" aria-hidden="true">
+    <div>
+      <span class="eyebrow" style="color: rgb(255 255 255 / 0.8)">Welcome back</span>
+      <h2>Your next great night out is a click away.</h2>
+      <p>Pick up where you left off: your tickets, your events, your dashboard.</p>
+    </div>
+    <ul class="auth__perks">
+      <li><%= icon(:ticket) %> All your Ticket IDs in one wallet</li>
+      <li><%= icon(:calendar) %> Live seat availability for every tier</li>
+      <li><%= icon(:shield) %> Every event verified by an admin</li>
+    </ul>
+    <div class="auth__ticket">
+      <span>ADMIT ONE</span>
+      <strong>BookMyEvent</strong>
+    </div>
+  </aside>
 
-  <p>
-    <%= form.label :password %><br>
-    <%= form.password_field :password,
-                            required: true,
-                            autocomplete: "current-password" %>
-  </p>
+  <div class="auth__main">
+    <h1>Log in</h1>
+    <p class="lead">Good to see you again.</p>
 
-  <%= form.submit "Log in" %>
-<% end %>
+    <%= form_with url: login_path,
+                  class: "form",
+                  data: { turbo: false } do |form| %>
+      <div class="field">
+        <%= form.label :email %>
+        <%= form.email_field :email,
+                             required: true,
+                             autofocus: true,
+                             placeholder: "you@example.com",
+                             autocomplete: "email" %>
+      </div>
 
-<p>
-  New to BookMyEvent?
-  <%= link_to "Sign up", signup_path %>
-</p>
+      <div class="field" data-controller="password">
+        <%= form.label :password %>
+        <div class="password-field">
+          <%= form.password_field :password,
+                                  required: true,
+                                  autocomplete: "current-password",
+                                  data: { password_target: "input" } %>
+          <button type="button" class="password-toggle" data-action="password#toggle" data-password-target="toggle" aria-label="Show password">Show</button>
+        </div>
+      </div>
+
+      <%= form.submit "Log in", class: "btn btn--primary btn--block btn--lg" %>
+    <% end %>
+
+    <p class="auth__switch">
+      New to BookMyEvent?
+      <%= link_to "Sign up", signup_path %>
+    </p>
+  </div>
+</div>

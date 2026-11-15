@@ -1,5 +1,50 @@
-<h1>Create an event</h1>
+<% content_for :title, "Create an event | BookMyEvent" %>
 
-<p>New events are reviewed by an admin before they are listed.</p>
+<div class="page-header">
+  <div>
+    <span class="eyebrow"><%= icon(:sparkles, size: 14) %> Step 1 of 3</span>
+    <h1>Create an event</h1>
+    <p>New events are reviewed by an admin before they are listed.</p>
+  </div>
+</div>
 
-<%= render "form", event: @event %>
+<div class="edit-grid" data-controller="preview">
+  <section class="card" aria-label="Event details">
+    <%= render "form", event: @event %>
+  </section>
+
+  <aside class="stack">
+    <div>
+      <p class="eyebrow" style="margin-bottom:0.6rem"><%= icon(:eye, size: 14) %> Live preview</p>
+      <div class="event-card" style="--hue: 262; animation: none">
+        <div class="event-card__media">
+          <div class="date-tile" aria-hidden="true">
+            <span class="date-tile__month" data-preview-target="month">TBA</span>
+            <span class="date-tile__day" data-preview-target="day">—</span>
+            <span class="date-tile__weekday" data-preview-target="weekday">&nbsp;</span>
+          </div>
+          <span class="chip chip--glass">Draft</span>
+        </div>
+        <div class="event-card__body">
+          <h2 class="event-card__title" data-preview-target="titleOut">Your event title</h2>
+          <p class="event-card__meta"><%= icon(:calendar, size: 15) %> <span data-preview-target="dateOut">Pick a date and time</span></p>
+          <p class="event-card__meta"><%= icon(:pin, size: 15) %> <span data-preview-target="venueOut">Venue</span></p>
+          <p class="muted small" style="margin:0" data-preview-target="descriptionOut">A short description will appear here.</p>
+          <div class="event-card__footer">
+            <p class="event-card__seats"><span data-preview-target="capacityOut">0 seats</span><span class="muted">0% booked</span></p>
+            <%= meter(0, label: "Preview booking progress") %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card__title"><%= icon(:shield) %> What happens next</h3>
+      <ol class="muted small" style="margin:0; padding-left:1.1rem; display:grid; gap:0.35rem">
+        <li>Add ticket tiers (General, VIP…)</li>
+        <li>Upload your venue authorization document</li>
+        <li>An admin approves and your event goes live</li>
+      </ol>
+    </div>
+  </aside>
+</div>

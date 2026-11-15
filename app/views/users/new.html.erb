@@ -1,60 +1,98 @@
-<h1>Create an account</h1>
+<% content_for :title, "Sign up | BookMyEvent" %>
 
-<% if @user.errors.any? %>
-  <div role="alert">
-    <h2>Please correct the following:</h2>
-
-    <ul>
-      <% @user.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
+<div class="auth">
+  <aside class="auth__aside" aria-hidden="true">
+    <div>
+      <span class="eyebrow" style="color: rgb(255 255 255 / 0.8)">Join BookMyEvent</span>
+      <h2>Discover events. Or host your own.</h2>
+      <p>One account for booking seats as an attendee or running events as an organizer.</p>
+    </div>
+    <ul class="auth__perks">
+      <li><%= icon(:sparkles) %> Book multiple tiers in one go</li>
+      <li><%= icon(:users) %> Organizers manage tiers &amp; capacity</li>
+      <li><%= icon(:check) %> Instant booking confirmation</li>
     </ul>
+    <div class="auth__ticket">
+      <span>ADMIT ONE</span>
+      <strong>Your first event</strong>
+    </div>
+  </aside>
+
+  <div class="auth__main">
+    <h1>Create an account</h1>
+    <p class="lead">It takes less than a minute.</p>
+
+    <% if @user.errors.any? %>
+      <div role="alert" class="form-errors">
+        <h2>Please correct the following:</h2>
+
+        <ul>
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @user,
+                  url: signup_path,
+                  class: "form",
+                  data: { turbo: false, controller: "password" } do |form| %>
+      <div class="field">
+        <%= form.label :name %>
+        <%= form.text_field :name,
+                            required: true,
+                            placeholder: "Your full name",
+                            autocomplete: "name" %>
+      </div>
+
+      <div class="field">
+        <%= form.label :email %>
+        <%= form.email_field :email,
+                             required: true,
+                             placeholder: "you@example.com",
+                             autocomplete: "email" %>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <%= form.label :password %>
+          <div class="password-field">
+            <%= form.password_field :password,
+                                    required: true,
+                                    minlength: 8,
+                                    autocomplete: "new-password",
+                                    data: { password_target: "input", action: "input->password#measure" } %>
+            <button type="button" class="password-toggle" data-action="password#toggle" data-password-target="toggle" aria-label="Show password">Show</button>
+          </div>
+          <div class="strength" data-password-target="meter" data-score="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          <p class="field__hint" data-password-target="strengthLabel">At least 8 characters.</p>
+        </div>
+
+        <div class="field">
+          <%= form.label :password_confirmation, "Confirm password" %>
+          <%= form.password_field :password_confirmation,
+                                  required: true,
+                                  autocomplete: "new-password",
+                                  data: { password_target: "confirmation", action: "input->password#measure" } %>
+          <p class="field__hint match-hint" data-password-target="matchLabel" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="field">
+        <%= form.label :role, "Account type" %>
+        <%= form.select :role,
+                        [["Attendee", "attendee"],
+                         ["Organizer", "organizer"]] %>
+        <p class="field__hint">Attendees book tickets. Organizers create and manage events.</p>
+      </div>
+
+      <%= form.submit "Create account", class: "btn btn--primary btn--block btn--lg" %>
+    <% end %>
+
+    <p class="auth__switch">
+      Already have an account?
+      <%= link_to "Log in", login_path %>
+    </p>
   </div>
-<% end %>
-
-<%= form_with model: @user,
-              url: signup_path,
-              data: { turbo: false } do |form| %>
-  <p>
-    <%= form.label :name %><br>
-    <%= form.text_field :name,
-                        required: true,
-                        autocomplete: "name" %>
-  </p>
-
-  <p>
-    <%= form.label :email %><br>
-    <%= form.email_field :email,
-                         required: true,
-                         autocomplete: "email" %>
-  </p>
-
-  <p>
-    <%= form.label :password %><br>
-    <%= form.password_field :password,
-                            required: true,
-                            minlength: 8,
-                            autocomplete: "new-password" %>
-  </p>
-
-  <p>
-    <%= form.label :password_confirmation, "Confirm password" %><br>
-    <%= form.password_field :password_confirmation,
-                            required: true,
-                            autocomplete: "new-password" %>
-  </p>
-
-  <p>
-    <%= form.label :role, "Account type" %><br>
-    <%= form.select :role,
-                    [["Attendee", "attendee"],
-                     ["Organizer", "organizer"]] %>
-  </p>
-
-  <%= form.submit "Create account" %>
-<% end %>
-
-<p>
-  Already have an account?
-  <%= link_to "Log in", login_path %>
-</p>
+</div>

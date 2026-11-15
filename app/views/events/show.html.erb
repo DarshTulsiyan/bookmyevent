@@ -1,67 +1,140 @@
-<h1><%= @event.title %></h1>
+<% content_for :title, "#{@event.title} | BookMyEvent" %>
+<% stats = tier_stats(@ticket_tiers) %>
+<% owner = current_user == @event.organizer %>
 
-<% if current_user == @event.organizer || current_user&.admin? %>
-  <p>Status: <%= event_status_badge(@event) %></p>
+<section class="event-hero" style="--hue: <%= event_hue(@event) %>">
+  <%= link_to events_path, class: "back-link" do %><%= icon(:arrow_left, size: 15) %> All upcoming events<% end %>
 
-  <% if @event.authorization_document.attached? %>
-    <p>
-      <%= link_to "Download authorization document",
-                  authorization_document_event_path(@event),
-                  data: { turbo: false } %>
-    </p>
-  <% end %>
-<% end %>
-
-<% if @event.pending? && current_user&.admin? %>
-  <div>
-    <%= button_to "Approve & publish",
-                  approve_event_path(@event),
-                  method: :patch,
-                  class: "admin-review-button" %>
-
-    <%= render "events/reject_form", event: @event %>
+  <div class="event-hero__top">
+    <%= event_date_tile(@event) %>
+    <div>
+      <h1><%= @event.title %></h1>
+    </div>
   </div>
-<% end %>
 
-<p>When: <%= l @event.starts_at, format: :long %></p>
-<p>Where: <%= @event.venue %></p>
-
-<% if @event.description.present? %>
-  <%= simple_format @event.description %>
-<% end %>
-
-<% if current_user == @event.organizer %>
-  <p><%= link_to "Edit event", edit_event_path(@event) %></p>
-<% end %>
-
-<section aria-labelledby="ticket-tiers-heading">
-  <h2 id="ticket-tiers-heading">Tickets</h2>
-
-  <% if @ticket_tiers.any? %>
-    <%= render "booking_form" %>
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Tier</th>
-          <th scope="col">Seats left</th>
-          <th scope="col">Booking</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @ticket_tiers.each do |tier| %>
-          <%= render "tier_row", tier: tier %>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <% if current_user == @event.organizer %>
-      <p>You have not configured ticket tiers for this event yet.</p>
-    <% elsif current_user&.admin? %>
-      <p>No ticket tiers have been configured for this event.</p>
-    <% else %>
-      <p>Tickets are not on sale yet.</p>
+  <div class="event-hero__meta">
+    <span class="chip chip--glass"><%= icon(:calendar, size: 14) %> <%= l @event.starts_at, format: :long %></span>
+    <span class="chip chip--glass"><%= icon(:pin, size: 14) %> <%= @event.venue %></span>
+    <span class="chip chip--glass"
+          data-controller="countdown"
+          data-countdown-at-value="<%= @event.starts_at.iso8601 %>">
+      <%= icon(:clock, size: 14) %>
+      <span data-countdown-target="output"><%= relative_start(@event) %></span>
+    </span>
+    <% if stats[:capacity].positive? %>
+      <span class="chip chip--glass"><%= icon(:ticket, size: 14) %> <%= stats[:left] %> of <%= stats[:capacity] %> seats open</span>
     <% end %>
+  </div>
+
+  <% if owner || current_user&.admin? %>
+    <div class="event-hero__owner">
+      <p>Status: <%= event_status_badge(@event) %></p>
+
+      <% if owner %>
+        <%= link_to edit_event_path(@event), class: "btn btn--ghost btn--sm" do %><%= icon(:edit, size: 15) %> Edit event<% end %>
+      <% end %>
+
+      <%= render "events/document_links", event: @event %>
+    </div>
   <% end %>
 </section>
 
-<p><%= link_to "Back to events", events_path %></p>
+<% if @event.pending? && current_user&.admin? %>
+  <section class="card review-panel" aria-labelledby="review-heading">
+    <div>
+      <h2 id="review-heading" class="card__title"><%= icon(:shield) %> Awaiting your review</h2>
+      <p class="muted small" style="margin:0">Check the authorization document above, then publish the event or send it back with a reason.</p>
+    </div>
+    <div class="review-panel__actions">
+      <%= button_to "Approve & publish",
+                    approve_event_path(@event),
+                    method: :patch,
+                    class: "admin-review-button",
+                    form: { data: { turbo_confirm: "Publish \"#{@event.title}\" to the public listing?" } } %>
+
+      <%= render "events/reject_form", event: @event %>
+    </div>
+  </section>
+<% end %>
+
+<div class="detail-grid">
+  <div class="stack">
+    <section class="card" aria-labelledby="about-heading">
+      <h2 id="about-heading">About this event</h2>
+      <div class="info-list" style="margin: 1rem 0 1.25rem">
+        <div>
+          <span class="info-list__icon"><%= icon(:calendar) %></span>
+          <p><strong>When</strong> <%= l @event.starts_at, format: :long %></p>
+        </div>
+        <div>
+          <span class="info-list__icon"><%= icon(:pin) %></span>
+          <p><strong>Where</strong> <%= @event.venue %></p>
+        </div>
+      </div>
+
+      <% if @event.description.present? %>
+        <div class="prose"><%= simple_format @event.description %></div>
+      <% else %>
+        <p class="muted">The organizer hasn't added a description yet.</p>
+      <% end %>
+    </section>
+
+    <section class="card card--flush" aria-labelledby="ticket-tiers-heading">
+      <div class="card__head" style="padding: 1.25rem 1.5rem 0">
+        <h2 id="ticket-tiers-heading">Tickets</h2>
+        <% if stats[:capacity].positive? %>
+          <span class="chip"><%= stats[:percent] %>% booked</span>
+        <% end %>
+      </div>
+
+      <% if @ticket_tiers.any? %>
+        <div class="table-wrap">
+          <table class="table tier-table">
+            <thead>
+              <tr>
+                <th scope="col">Tier</th>
+                <th scope="col">Seats left</th>
+                <th scope="col">Booking</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @ticket_tiers.each do |tier| %>
+                <%= render "tier_row", tier: tier %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div style="padding: 0 1.5rem 1.5rem">
+          <div class="booking-note">
+            <%= icon(:ticket) %>
+            <% if owner %>
+              <p>You have not configured ticket tiers for this event yet. <%= link_to "Add tiers", edit_event_path(@event, anchor: "ticket-tiers") %></p>
+            <% elsif current_user&.admin? %>
+              <p>No ticket tiers have been configured for this event.</p>
+            <% else %>
+              <p>Tickets are not on sale yet.</p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </section>
+
+    <p><%= link_to events_path, class: "back-link" do %><%= icon(:arrow_left, size: 15) %> Back to events<% end %></p>
+  </div>
+
+  <aside class="detail-grid__aside">
+    <section class="card booking-card" aria-labelledby="book-heading">
+      <div class="booking-card__head">
+        <h2 id="book-heading"><%= icon(:ticket) %> Reserve your spot</h2>
+      </div>
+      <div class="booking-card__body">
+        <% if @ticket_tiers.any? %>
+          <%= render "booking_form" %>
+        <% else %>
+          <div class="booking-note"><%= icon(:clock) %><p>Ticket sales open once the organizer adds tiers.</p></div>
+        <% end %>
+      </div>
+    </section>
+  </aside>
+</div>
