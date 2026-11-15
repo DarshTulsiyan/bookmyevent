@@ -148,3 +148,13 @@
   * Submission sets the event to Pending Review. Only the organizer and admins can access the document.
   * Admin approval publishes the event. The document stays private.
   * Admin rejection requires a reason and keeps the event hidden. The organizer can replace the document and resubmit.
+### US-15 (Stretch): Organizer Uploads Venue Booking Proof for Admin Review
+
+* **Priority:** 15 | **Points:** 3 | **Sprint:** 2 | **Role:** Organizer / Admin
+* **User Story:** As an organizer, I want to upload proof that I have booked the venue (a PDF or image of the booking confirmation) when I submit an event so that the admin can verify it before approving the event.
+* **Acceptance Criteria:**
+  * Organizer can attach a venue booking proof file when creating or editing an event.
+  * System accepts only PDF, JPG, and PNG files and rejects other file types and files that are too large, with an error message.
+  * An event cannot be approved until a venue booking proof is attached.
+  * Admin can view or download the attached proof while reviewing the pending event, then approve or reject it.
+  * Only the event's organizer and admins can access the proof file.
