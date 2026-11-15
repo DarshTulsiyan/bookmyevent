@@ -143,3 +143,7 @@ The main models are `User`, `Event`, `TicketTier`, `Booking`, and `Ticket`. A bo
 ## About
 
 Software Engineering Project 2.
+
+## Deployed Website
+
+https://bookmyevent-v7g5.onrender.com/
