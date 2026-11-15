@@ -4,7 +4,7 @@ Feature: Event creation
   Scenario: Organizer creates an event
     Given I am logged in as an organizer
     When I create an event with valid details
-    Then the event page should show "Pending approval"
+    Then the event page should show "Draft"
     And the event page should show "Ticket tiers"
 
   Scenario: Missing event title

@@ -1,6 +1,7 @@
 module EventsHelper
   STATUS_LABELS = {
-    "pending" => "Pending approval",
+    "draft" => "Draft",
+    "pending" => "Pending Review",
     "approved" => "Approved",
     "rejected" => "Rejected"
   }.freeze

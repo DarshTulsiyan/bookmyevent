@@ -9,6 +9,7 @@ end
 
 Given("a pending event {string} exists") do |title|
   @admin_event = FactoryBot.create(:event, title: title, status: :pending)
+  @admin_event.authorization_document.attach(io: StringIO.new("%PDF-1.4"), filename: "permit.pdf")
 end
 
 Given("a published event {string} exists") do |title|
@@ -70,7 +71,7 @@ end
 
 Then("the event appears with enabled approve and reject buttons") do
   within(page.find("tr", text: @admin_event.title)) do
-    expect(page).to have_content("Pending approval")
+    expect(page).to have_content("Pending Review")
     expect(page).to have_button("Approve & publish", disabled: false)
     expect(page).to have_button("Reject", disabled: false)
   end
@@ -78,7 +79,7 @@ end
 
 Then("the event details show pending status and enabled review buttons") do
   expect(page).to have_content(@admin_event.title)
-  expect(page).to have_content("Pending approval")
+  expect(page).to have_content("Pending Review")
   expect(page).to have_button("Approve & publish", disabled: false)
   expect(page).to have_button("Reject", disabled: false)
 end

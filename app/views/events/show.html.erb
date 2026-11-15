@@ -2,6 +2,14 @@
 
 <% if current_user == @event.organizer || current_user&.admin? %>
   <p>Status: <%= event_status_badge(@event) %></p>
+
+  <% if @event.authorization_document.attached? %>
+    <p>
+      <%= link_to "Download authorization document",
+                  authorization_document_event_path(@event),
+                  data: { turbo: false } %>
+    </p>
+  <% end %>
 <% end %>
 
 <% if @event.pending? && current_user&.admin? %>
@@ -11,10 +19,7 @@
                   method: :patch,
                   class: "admin-review-button" %>
 
-    <%= button_to "Reject",
-                  reject_event_path(@event),
-                  method: :patch,
-                  class: "admin-review-button admin-review-button--reject" %>
+    <%= render "events/reject_form", event: @event %>
   </div>
 <% end %>
 

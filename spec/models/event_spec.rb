@@ -35,7 +35,7 @@ RSpec.describe Event, type: :model do
   end
 
   it "is pending when created" do
-    expect(Event.new).to be_pending
+    expect(Event.new).to be_draft
   end
 
   describe ".publicly_visible" do
@@ -174,6 +174,7 @@ RSpec.describe Event, type: :model do
     it "approves a pending event" do
       event = FactoryBot.create(:event, status: :pending)
 
+      event.authorization_document.attach(io: StringIO.new("%PDF-1.4"), filename: "permit.pdf")
       expect(event.approve).to be(true)
       expect(event.reload).to be_approved
     end
@@ -181,7 +182,7 @@ RSpec.describe Event, type: :model do
     it "rejects a pending event" do
       event = FactoryBot.create(:event, status: :pending)
 
-      expect(event.reject).to be(true)
+      expect(event.reject(reason: "Permit expired")).to be(true)
       expect(event.reload).to be_rejected
     end
 
@@ -190,7 +191,8 @@ RSpec.describe Event, type: :model do
         it "does not #{action} an #{initial_status} event" do
           event = FactoryBot.create(:event, status: initial_status)
 
-          expect(event.public_send(action)).to be(false)
+          result = action == :reject ? event.reject(reason: "Permit expired") : event.approve
+          expect(result).to be(false)
           expect(event.errors[:status]).to include(
             "can only be changed while pending"
           )
