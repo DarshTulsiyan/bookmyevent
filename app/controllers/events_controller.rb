@@ -110,8 +110,14 @@ class EventsController < ApplicationController
                   notice: "Event submitted for review.",
                   status: :see_other
     else
+      errors = @event.errors.full_messages.to_sentence
+      Rails.logger.warn(
+        "Event review submission failed event_id=#{@event.id} " \
+        "status=#{@event.status} errors=#{errors.inspect}"
+      )
+
       redirect_to edit_event_path(@event),
-                  alert: @event.errors.full_messages.to_sentence,
+                  alert: errors,
                   status: :see_other
     end
   ensure
