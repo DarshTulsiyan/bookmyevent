@@ -1,0 +1,23 @@
+<%# One shared preview window; View links open it via the doc-preview controller. %>
+<dialog id="doc-preview"
+        class="doc-dialog"
+        aria-labelledby="doc-preview-title"
+        data-controller="doc-dialog"
+        data-action="doc-preview:open@window->doc-dialog#open click->doc-dialog#backdropClose close->doc-dialog#reset">
+  <div class="doc-dialog__panel">
+    <header class="doc-dialog__head">
+      <span class="doc-dialog__icon"><%= icon(:file, size: 18) %></span>
+      <div class="doc-dialog__meta">
+        <h2 id="doc-preview-title" data-doc-dialog-target="title">Document</h2>
+        <p data-doc-dialog-target="details"></p>
+      </div>
+      <div class="doc-dialog__actions">
+        <a href="#" class="icon-button" target="_blank" rel="noopener" title="Open in new tab" aria-label="Open in new tab" data-doc-dialog-target="newTab"><%= icon(:external, size: 16) %></a>
+        <a href="#" class="icon-button" title="Download" aria-label="Download document" data-turbo="false" data-doc-dialog-target="download"><%= icon(:download, size: 16) %></a>
+        <button type="button" class="icon-button doc-dialog__close" title="Close (Esc)" aria-label="Close preview" data-action="doc-dialog#close"><%= icon(:x, size: 18) %></button>
+      </div>
+    </header>
+    <div class="doc-dialog__body" data-doc-dialog-target="body"></div>
+    <footer class="doc-dialog__foot">Press <kbd>Esc</kbd> to close</footer>
+  </div>
+</dialog>

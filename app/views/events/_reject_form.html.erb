@@ -1,0 +1,20 @@
+<% compact = local_assigns.fetch(:compact, false) %>
+<%# In compact mode, JavaScript collapses this into a "Reject" toggle and only
+    reveals the reason field when clicked. Without JS the field stays visible. %>
+<%= form_with url: reject_event_path(event),
+              method: :patch,
+              class: ["reject-form", ("reject-form--compact" if compact)].compact.join(" "),
+              data: ({ controller: "reject-toggle" } if compact).to_h.merge(turbo: false) do |form| %>
+  <% reason_id = dom_id(event, :rejection_reason) %>
+  <%= form.label :rejection_reason, "Rejection reason", for: reason_id, class: ("sr-only" if compact) %>
+  <div class="reject-form__row" data-reject-toggle-target="panel">
+    <%= form.text_area :rejection_reason,
+                       id: reason_id,
+                       required: true,
+                       rows: compact ? 2 : 1,
+                       class: "input input--sm",
+                       placeholder: compact ? "Reason for rejecting (shared with the organizer)…" : "e.g. Permit expired",
+                       data: (compact ? { reject_toggle_target: "reason", action: "keydown->reject-toggle#keydown" } : {}) %>
+    <%= form.submit "Reject", class: "admin-review-button admin-review-button--reject", data: (compact ? { reject_toggle_target: "submit" } : {}) %>
+  </div>
+<% end %>

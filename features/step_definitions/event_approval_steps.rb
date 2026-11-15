@@ -1,5 +1,6 @@
 When("the admin chooses {string} for {string}") do |button, title|
   within(page.find("tr", text: title)) do
+    fill_in "Rejection reason", with: "Permit expired" if button == "Reject"
     click_button button
   end
 end

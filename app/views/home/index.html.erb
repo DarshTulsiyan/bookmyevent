@@ -1,16 +1,21 @@
-<h1>Welcome to BookMyEvent</h1>
-
-<p>Discover events and manage your tickets.</p>
-
-<p><%= link_to "Browse upcoming events", events_path %></p>
+<section class="hero">
+  <div>
+    <span class="eyebrow"><%= icon(:sparkles, size: 14) %> BookMyEvent</span>
+    <h1>Welcome to BookMyEvent</h1>
+    <p class="hero__lead">Discover events and manage your tickets.</p>
+  </div>
+  <div class="hero__stats">
+    <%= link_to "Browse upcoming events", events_path, class: "btn btn--ghost btn--lg" %>
+  </div>
+</section>
 
 <% if current_user %>
   <p>Welcome, <%= current_user.name %>!</p>
-  <%= link_to "My account", account_path %>
+  <%= link_to "My account", account_path, class: "btn btn--primary" %>
 <% else %>
   <p>
-    <%= link_to "Sign up", signup_path %>
+    <%= link_to "Sign up", signup_path, class: "btn btn--primary" %>
     or
-    <%= link_to "Log in", login_path %>
+    <%= link_to "Log in", login_path, class: "btn btn--ghost" %>
   </p>
 <% end %>

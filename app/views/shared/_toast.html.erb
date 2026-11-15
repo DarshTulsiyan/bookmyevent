@@ -1,0 +1,15 @@
+<% if kind.to_sym == :notice %>
+  <div class="toast toast--success" data-controller="toast" data-action="mouseenter->toast#pause mouseleave->toast#resume">
+    <span class="toast__icon"><%= icon(:check, size: 16) %></span>
+    <p role="status"><%= message %></p>
+    <button type="button" class="toast__close" aria-label="Dismiss notification" data-action="toast#dismiss"><%= icon(:x, size: 16) %></button>
+    <span class="toast__progress"></span>
+  </div>
+<% else %>
+  <div class="toast toast--error" data-controller="toast" data-toast-duration-value="8000" data-action="mouseenter->toast#pause mouseleave->toast#resume">
+    <span class="toast__icon"><%= icon(:alert, size: 16) %></span>
+    <p role="alert" class="flash-alert"><%= message %></p>
+    <button type="button" class="toast__close" aria-label="Dismiss notification" data-action="toast#dismiss"><%= icon(:x, size: 16) %></button>
+    <span class="toast__progress"></span>
+  </div>
+<% end %>

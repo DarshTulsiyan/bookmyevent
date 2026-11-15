@@ -7,8 +7,7 @@ class TicketTiersController < ApplicationController
     @ticket_tier = @event.ticket_tiers.build(ticket_tier_params)
 
     if @ticket_tier.save
-      redirect_to edit_event_path(@event),
-                  notice: "Ticket tier was successfully created."
+      respond_with_tiers("Ticket tier was successfully created.", highlight: @ticket_tier)
     else
       render_event_edit
     end
@@ -16,8 +15,7 @@ class TicketTiersController < ApplicationController
 
   def update
     if @ticket_tier.update(ticket_tier_params)
-      redirect_to edit_event_path(@event),
-                  notice: "Ticket tier was successfully updated."
+      respond_with_tiers("Ticket tier was successfully updated.", highlight: @ticket_tier)
     else
       render_event_edit
     end
@@ -31,8 +29,7 @@ class TicketTiersController < ApplicationController
       )
       render_event_edit
     elsif @ticket_tier.destroy
-      redirect_to edit_event_path(@event),
-                  notice: "Ticket tier was successfully deleted."
+      respond_with_tiers("Ticket tier was successfully deleted.")
     else
       render_event_edit
     end
@@ -58,9 +55,42 @@ class TicketTiersController < ApplicationController
     params.require(:ticket_tier).permit(:name, :capacity)
   end
 
-  def render_event_edit
-    flash.now[:alert] = @ticket_tier.errors.full_messages.to_sentence
+  # Turbo (JS) requests get the tier panel updated in place; plain HTML
+  # requests keep the original redirect behaviour.
+  def respond_with_tiers(message, highlight: nil)
+    respond_to do |format|
+      format.html do
+        redirect_to edit_event_path(@event), notice: message
+      end
+      format.turbo_stream do
+        @highlight_tier_id = highlight&.id
+        @ticket_tier = nil
+        render turbo_stream: tier_streams(:notice, message)
+      end
+    end
+  end
 
-    render "events/edit", status: :unprocessable_content
+  def render_event_edit
+    message = @ticket_tier.errors.full_messages.to_sentence
+
+    respond_to do |format|
+      format.html do
+        flash.now[:alert] = message
+        render "events/edit", status: :unprocessable_content
+      end
+      format.turbo_stream do
+        render turbo_stream: tier_streams(:alert, message),
+               status: :unprocessable_content
+      end
+    end
+  end
+
+  def tier_streams(kind, message)
+    [
+      turbo_stream.replace("ticket-tiers", partial: "events/tiers_panel"),
+      turbo_stream.replace("capacity-card", partial: "events/capacity_card"),
+      turbo_stream.replace("publish-steps", partial: "events/steps"),
+      turbo_stream.append("toasts", partial: "shared/toast", locals: { kind: kind, message: message })
+    ]
   end
 end

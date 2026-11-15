@@ -1,58 +1,105 @@
-<h3>Add a ticket tier</h3>
-
 <% new_tier = @ticket_tier&.new_record? ? @ticket_tier : TicketTier.new %>
+<% failed_tier = @ticket_tier if @ticket_tier&.persisted? && @ticket_tier.errors.any? %>
+<% tiers = @event.ticket_tiers.order(:id).to_a %>
+<% unallocated = @event.total_capacity_in_database.to_i - tiers.sum(&:capacity) %>
 
-<%= form_with model: [@event, new_tier],
-              url: event_tiers_path(@event),
-              data: { turbo: false } do |form| %>
-  <p>
-    <%= form.label :name %>
-    <%= form.text_field :name, required: true %>
-  </p>
+<div class="tier-add" data-controller="tier-capacity" data-tier-capacity-remaining-value="<%= unallocated %>">
+  <h3><%= icon(:plus, size: 16) %> Add a ticket tier</h3>
 
-  <p>
-    <%= form.label :capacity %>
-    <%= form.number_field :capacity, required: true, min: 1, step: 1 %>
-  </p>
+  <%= form_with model: [@event, new_tier],
+                url: event_tiers_path(@event),
+                class: "form tier-add__form" do |form| %>
+    <p class="field">
+      <%= form.label :name %>
+      <%= form.text_field :name,
+                          required: true,
+                          placeholder: "e.g. General, VIP",
+                          autofocus: @highlight_tier_id.present? && new_tier.name.blank? %>
+    </p>
 
-  <%= form.submit "Add tier" %>
-<% end %>
+    <p class="field">
+      <%= form.label :capacity %>
+      <%= form.number_field :capacity,
+                            required: true, min: 1, step: 1,
+                            placeholder: "50",
+                            data: { tier_capacity_target: "input", action: "input->tier-capacity#check" } %>
+    </p>
+
+    <%= form.submit "Add tier", class: "btn btn--primary", data: { turbo_submits_with: "Adding…" } %>
+  <% end %>
+
+  <% if new_tier.errors.any? %>
+    <p class="tier-hint is-over"><%= new_tier.errors.full_messages.to_sentence %></p>
+  <% else %>
+    <p class="tier-hint" data-tier-capacity-target="hint"><%= pluralize([ unallocated, 0 ].max, "seat") %> still unassigned.</p>
+  <% end %>
+</div>
 
 <h3>Existing ticket tiers</h3>
 
-<% @event.ticket_tiers.order(:id).each do |tier| %>
-  <section>
-    <h4><%= tier.name %></h4>
-
-    <p>
-      Capacity: <%= tier.capacity %> |
-      Sold: <%= tier.tickets_sold %> |
-      Remaining: <%= tier.seats_left %>
-    </p>
-
-    <%= form_with model: [@event, tier],
-                  url: event_tier_path(@event, tier),
-                  method: :patch,
-                  data: { turbo: false } do |form| %>
-      <p>
-        <%= form.label :name %>
-        <%= form.text_field :name, required: true %>
-      </p>
-
-      <p>
-        <%= form.label :capacity %>
-        <%= form.number_field :capacity,
-                              required: true,
-                              min: tier.tickets_sold,
-                              step: 1 %>
-      </p>
-
-      <%= form.submit "Update tier" %>
-    <% end %>
-
-    <%= button_to "Delete tier",
-                  event_tier_path(@event, tier),
-                  method: :delete,
-                  data: { turbo_confirm: "Are you sure?" } %>
-  </section>
+<% if tiers.empty? %>
+  <div class="empty-state" style="padding: 2rem 1rem">
+    <div class="empty-state__icon"><%= icon(:ticket, size: 24) %></div>
+    <p style="margin:0">No tiers yet. Add your first one above to start selling tickets.</p>
+  </div>
 <% end %>
+
+<div class="tier-list">
+  <% tiers.each do |tier| %>
+    <% form_tier = failed_tier&.id == tier.id ? failed_tier : tier %>
+    <section id="<%= dom_id(tier) %>" class="tier-card <%= "is-new" if tier.id == @highlight_tier_id %> <%= "has-error" if form_tier.errors.any? %>">
+      <div class="tier-card__head">
+        <h4><%= icon(:ticket, size: 16) %><%= tier.name %></h4>
+        <% if tier.sold_out? %>
+          <span class="chip chip--danger">Sold out</span>
+        <% elsif tier.tickets_sold.positive? %>
+          <span class="chip chip--success">Selling</span>
+        <% end %>
+      </div>
+
+      <p class="tier-card__stats">
+        Capacity: <%= tier.capacity %> |
+        Sold: <%= tier.tickets_sold %> |
+        Remaining: <%= tier.seats_left %>
+      </p>
+      <%= meter(tier.capacity.positive? ? (tier.tickets_sold * 100.0 / tier.capacity) : 0,
+                label: "#{tier.name} tickets sold") %>
+
+      <%= form_with model: [@event, form_tier],
+                    url: event_tier_path(@event, tier),
+                    method: :patch,
+                    class: "form tier-card__form" do |form| %>
+        <p>
+          <%= form.label :name, for: dom_id(tier, :name) %>
+          <%= form.text_field :name, required: true, id: dom_id(tier, :name), class: "input--sm" %>
+        </p>
+
+        <p>
+          <%= form.label :capacity, for: dom_id(tier, :capacity) %>
+          <%= form.number_field :capacity,
+                                required: true,
+                                min: tier.tickets_sold,
+                                step: 1,
+                                id: dom_id(tier, :capacity),
+                                class: "input--sm" %>
+        </p>
+
+        <% if form_tier.errors.any? %>
+          <p class="tier-card__error"><%= form_tier.errors.full_messages.to_sentence %></p>
+        <% end %>
+
+        <div class="tier-card__actions">
+          <%= form.submit "Update tier", class: "btn btn--soft btn--sm", data: { turbo_submits_with: "Saving…" } %>
+        </div>
+      <% end %>
+
+      <div class="tier-card__foot">
+        <%= button_to "Delete tier",
+                      event_tier_path(@event, tier),
+                      method: :delete,
+                      class: "btn btn--danger-ghost btn--sm",
+                      data: { turbo_confirm: "Delete the \"#{tier.name}\" tier? This can't be undone." } %>
+      </div>
+    </section>
+  <% end %>
+</div>

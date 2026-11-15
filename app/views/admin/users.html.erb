@@ -1,13 +1,18 @@
 <% content_for :title, "Users | Admin | BookMyEvent" %>
 
-<header>
-  <h1>Users</h1>
-  <p>Accounts and assigned roles.</p>
+<header class="page-header">
+  <div>
+    <span class="eyebrow"><%= icon(:shield, size: 14) %> Admin</span>
+    <h1>Users</h1>
+    <p>Accounts and assigned roles.</p>
+  </div>
 </header>
 
 <%= render "navigation" %>
 
-<section aria-labelledby="users-heading">
-  <h2 id="users-heading">All user accounts</h2>
+<section class="card card--flush" aria-labelledby="users-heading">
+  <div class="card__head" style="padding: 1.25rem 1.25rem 0">
+    <h2 id="users-heading" class="card__title"><%= icon(:users) %> All user accounts</h2>
+  </div>
   <%= render "users_table", users: @users %>
 </section>

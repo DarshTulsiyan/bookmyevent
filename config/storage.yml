@@ -25,3 +25,13 @@ local:
 #   service: Mirror
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
+
+backblaze:
+  service: S3
+  endpoint: <%= ENV["B2_S3_ENDPOINT"].to_s.inspect %>
+  region: <%= ENV["B2_REGION"].to_s.inspect %>
+  bucket: <%= ENV["B2_BUCKET"].to_s.inspect %>
+  access_key_id: <%= ENV["B2_KEY_ID"].to_s.inspect %>
+  secret_access_key: <%= ENV["B2_APPLICATION_KEY"].to_s.inspect %>
+  force_path_style: true
+  public: false

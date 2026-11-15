@@ -17,7 +17,7 @@ RSpec.describe "Events", type: :request do
     post login_path, params: { email: user.email, password: "Password123!" }
   end
 
-  it "creates a pending event owned by the current organizer" do
+  it "creates a draft event owned by the current organizer" do
     log_in(organizer)
     other = FactoryBot.create(:user, :organizer)
 
@@ -28,7 +28,7 @@ RSpec.describe "Events", type: :request do
     }.to change(Event, :count).by(1)
 
     event = Event.last
-    expect(event).to be_pending
+    expect(event).to be_draft
     expect(event.organizer).to eq(organizer)
     expect(response).to redirect_to(edit_event_path(event))
   end
@@ -45,14 +45,14 @@ RSpec.describe "Events", type: :request do
   end
 
   it "updates the organizer's own event without changing its status" do
-    event = FactoryBot.create(:event, organizer: organizer)
+    event = FactoryBot.create(:event, organizer: organizer, status: :draft)
     log_in(organizer)
 
     patch event_path(event), params: { event: { title: "Renamed", status: "approved" } }
 
     expect(response).to redirect_to(edit_event_path(event))
     expect(event.reload.title).to eq("Renamed")
-    expect(event).to be_pending
+    expect(event).to be_draft
   end
 
   it "returns 404 for another organizer's event" do
@@ -84,7 +84,7 @@ RSpec.describe "Events", type: :request do
 
   describe "browsing" do
     let!(:approved) { FactoryBot.create(:event, title: "Approved Show", status: :approved) }
-    let!(:pending) { FactoryBot.create(:event, title: "Pending Show") }
+    let!(:pending) { FactoryBot.create(:event, title: "Pending Show", status: :pending) }
 
     it "lists only upcoming approved events, without login" do
       FactoryBot.create(:ticket_tier, event: approved, name: "VIP", capacity: 10, tickets_sold: 4)
@@ -138,7 +138,7 @@ RSpec.describe "Events", type: :request do
       get event_path(pending)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Pending approval")
+      expect(response.body).to include("Pending Review")
     end
 
     it "shows a pending event to an admin with review controls" do
@@ -147,7 +147,7 @@ RSpec.describe "Events", type: :request do
       get event_path(pending)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Pending approval", "Approve &amp; publish", "Reject")
+      expect(response.body).to include("Pending Review", "Approve &amp; publish", "Reject")
     end
 
     it "hides a rejected event from attendees" do

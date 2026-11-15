@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "Bookmyevent" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Bookmyevent">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="color-scheme" content="light dark">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+
+    <%# Apply the saved theme before first paint to avoid a light/dark flash. %>
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("bme-theme");
+          if (theme === "dark" || theme === "light") document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
 
     <%= yield :head %>
 
@@ -18,57 +29,121 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
 <body>
-  <a href="#main-content">Skip to content</a>
+  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <header>
-    <nav aria-label="Main navigation">
-      <%= link_to "BookMyEvent", root_path %>
-      <%= link_to "Events", events_path %>
-
-      <% if current_user %>
-        <span>Signed in as <%= current_user.name %></span>
-
-        <%= link_to "My account", account_path %>
-
-        <% if current_user.attendee? %>
-          <%= link_to "My Tickets", my_tickets_path %>
-        <% end %>
-
-        <% if current_user.admin? %>
-          <%= link_to "Admin dashboard", admin_path %>
-        <% end %>
-
-        <% if current_user.organizer? %>
-          <%= link_to "Create event", new_event_path %>
-        <% end %>
-
-        <%= button_to "Log out",
-                      logout_path,
-                      method: :delete,
-                      form: { data: { turbo: false } } %>
-      <% else %>
-        <%= link_to "Sign up", signup_path %>
-        <%= link_to "Log in", login_path %>
+  <header class="site-header" data-controller="nav">
+    <div class="container nav-bar">
+      <%= link_to root_path, class: "brand" do %>
+        <span class="brand__mark"><%= icon(:ticket, size: 18) %></span>
+        <span>BookMyEvent</span>
       <% end %>
-    </nav>
+
+      <button type="button"
+              class="icon-button nav__toggle"
+              aria-controls="primary-nav"
+              aria-expanded="false"
+              aria-label="Toggle navigation menu"
+              data-nav-target="button"
+              data-action="nav#toggle">
+        <%= icon(:menu) %>
+      </button>
+
+      <nav id="primary-nav" class="nav" aria-label="Main navigation">
+        <div class="nav__links">
+          <%= nav_link "Events", events_path, icon_name: :sparkles %>
+
+          <% if current_user %>
+            <%= nav_link "My account", account_path, icon_name: :user %>
+
+            <% if current_user.attendee? %>
+              <%= nav_link "My Tickets", my_tickets_path, icon_name: :ticket %>
+            <% end %>
+
+            <% if current_user.admin? %>
+              <%= nav_link "Admin dashboard", admin_path, icon_name: :dashboard %>
+            <% end %>
+
+            <% if current_user.organizer? %>
+              <%= nav_link "Create event", new_event_path, icon_name: :plus %>
+            <% end %>
+          <% end %>
+        </div>
+
+        <div class="nav__actions">
+          <button type="button"
+                  class="icon-button theme-toggle"
+                  aria-label="Toggle dark mode"
+                  title="Toggle dark mode"
+                  data-controller="theme"
+                  data-action="theme#toggle">
+            <%= icon(:moon, css: "icon-moon") %>
+            <%= icon(:sun, css: "icon-sun") %>
+          </button>
+
+          <% if current_user %>
+            <span class="user-chip">
+              <%= avatar(current_user.name, size: :sm) %>
+              <span>Signed in as <%= current_user.name %></span>
+            </span>
+
+            <%= button_to "Log out",
+                          logout_path,
+                          method: :delete,
+                          class: "btn btn--ghost btn--sm",
+                          form: { data: { turbo: false }, class: "inline-form" } %>
+          <% else %>
+            <%= link_to "Sign up", signup_path, class: "btn btn--primary btn--sm" %>
+            <%= link_to "Log in", login_path, class: "btn btn--ghost btn--sm" %>
+          <% end %>
+        </div>
+      </nav>
+    </div>
   </header>
 
-  <main id="main-content">
-    <% if notice.present? %>
-      <p role="status"><%= notice %></p>
-    <% end %>
-
-    <% if alert.present? %>
-      <p role="alert" class="flash-alert"><%= alert %></p>
-    <% end %>
+  <main id="main-content" class="container main">
+    <%# Always present so Turbo Stream responses can append toasts without a reload. %>
+    <div id="toasts" class="toast-region" aria-live="polite">
+      <%= render "shared/toast", kind: :notice, message: notice if notice.present? %>
+      <%= render "shared/toast", kind: :alert, message: alert if alert.present? %>
+    </div>
 
     <%= yield %>
   </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <%= link_to root_path, class: "brand" do %>
+        <span class="brand__mark"><%= icon(:ticket, size: 15) %></span>
+        <span>BookMyEvent</span>
+      <% end %>
+      <span>Discover, host and book campus events &middot; &copy; <%= Time.current.year %></span>
+    </div>
+  </footer>
+
+  <%= render "shared/document_preview" if current_user&.admin? || current_user&.organizer? %>
+
+  <dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-dialog-title">
+    <form method="dialog">
+      <div class="dialog__body">
+        <div class="dialog__icon"><%= icon(:alert, size: 22) %></div>
+        <h2 id="confirm-dialog-title" class="dialog__title" data-confirm-message></h2>
+        <p class="muted small">Please confirm to continue.</p>
+      </div>
+      <div class="dialog__actions">
+        <button type="submit" value="cancel" class="btn btn--ghost">Cancel</button>
+        <button type="submit" value="confirm" class="btn btn--danger" data-confirm-accept>Confirm</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

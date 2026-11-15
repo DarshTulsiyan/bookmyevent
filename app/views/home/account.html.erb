@@ -1,28 +1,86 @@
-<h1>My account</h1>
+<% content_for :title, "My account | BookMyEvent" %>
 
-<p>Name: <%= current_user.name %></p>
-<p>Email: <%= current_user.email %></p>
-<p>Account type: <%= current_user.role.humanize %></p>
+<section class="profile">
+  <%= avatar(current_user.name, size: :lg) %>
+  <div class="profile__details">
+    <span class="eyebrow">My account</span>
+    <h1><%= current_user.name %></h1>
+    <p>Name: <%= current_user.name %></p>
+    <p>Email: <%= current_user.email %></p>
+    <p>Account type: <span class="role-pill role-pill--<%= current_user.role %>"><%= current_user.role.humanize %></span></p>
+  </div>
+  <div class="profile__actions">
+    <% if current_user.admin? %>
+      <%= link_to admin_path, class: "btn btn--primary" do %><%= icon(:dashboard, size: 16) %> Open admin dashboard<% end %>
+    <% elsif current_user.organizer? %>
+      <%= link_to new_event_path, class: "btn btn--primary" do %><%= icon(:plus, size: 16) %> Create event<% end %>
+    <% else %>
+      <%= link_to my_tickets_path, class: "btn btn--primary" do %><%= icon(:ticket, size: 16) %> View my tickets<% end %>
+    <% end %>
+  </div>
+</section>
 
 <% if current_user.admin? %>
-  <p><%= link_to "Open admin dashboard", admin_path %></p>
+  <div class="quick-links">
+    <%= link_to admin_pending_events_path, class: "quick-link" do %>
+      <span class="info-list__icon"><%= icon(:clock) %></span>
+      <span><strong>Review queue</strong><span>Approve or reject submitted events</span></span>
+    <% end %>
+    <%= link_to admin_users_path, class: "quick-link" do %>
+      <span class="info-list__icon"><%= icon(:users) %></span>
+      <span><strong>Manage users</strong><span>Accounts, roles and status</span></span>
+    <% end %>
+  </div>
 <% elsif current_user.organizer? %>
-  <section aria-labelledby="my-events-heading">
-    <h2 id="my-events-heading">My events</h2>
+  <% status_counts = @organized_events.group_by(&:status).transform_values(&:size) %>
+  <section class="card" aria-labelledby="my-events-heading" data-controller="filter">
+    <div class="card__head">
+      <h2 id="my-events-heading" class="card__title"><%= icon(:calendar) %> My events</h2>
+      <% if @organized_events.any? %>
+        <div class="segmented" role="group" aria-label="Filter by status">
+          <button type="button" aria-pressed="true" data-filter-target="button" data-filter-value-param="all" data-action="filter#select">All <span class="count"><%= @organized_events.size %></span></button>
+          <% EventsHelper::STATUS_LABELS.each do |status, label| %>
+            <% next unless status_counts[status] %>
+            <button type="button" aria-pressed="false" data-filter-target="button" data-filter-value-param="<%= status %>" data-action="filter#select"><%= label %> <span class="count"><%= status_counts[status] %></span></button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
     <% if @organized_events.any? %>
-      <ul>
+      <ul class="event-rows">
         <% @organized_events.each do |event| %>
-          <li>
-            <%= link_to event.title, event_path(event) %>
-            &mdash; <%= event_status_badge(event) %>
+          <li class="event-row" style="--hue: <%= event_hue(event) %>" data-filter-target="item" data-filter-keys="<%= event.status %>">
+            <span class="event-row__swatch" aria-hidden="true"></span>
+            <div class="event-row__main">
+              <%= link_to event.title, event_path(event) %>
+              &mdash; <%= event_status_badge(event) %>
+              <p><%= l event.starts_at, format: :long %> &middot; <%= event.venue %></p>
+            </div>
+            <div class="event-row__actions">
+              <%= link_to edit_event_path(event), class: "btn btn--ghost btn--sm", aria: { label: "Manage #{event.title}" } do %><%= icon(:edit, size: 14) %> Manage<% end %>
+            </div>
           </li>
         <% end %>
       </ul>
+      <p class="table-empty" data-filter-target="empty" hidden>No events with this status.</p>
     <% else %>
-      <p>You have not created any events yet.</p>
+      <div class="empty-state">
+        <div class="empty-state__icon"><%= icon(:calendar, size: 24) %></div>
+        <p>You have not created any events yet.</p>
+        <%= link_to new_event_path, class: "btn btn--primary" do %><%= icon(:plus, size: 16) %> Create your first event<% end %>
+      </div>
     <% end %>
-    <p><%= link_to "Create event", new_event_path %></p>
   </section>
 <% else %>
-  <p>Browse upcoming published events from the <%= link_to "events page", events_path %>.</p>
+  <div class="quick-links">
+    <%= link_to events_path, class: "quick-link" do %>
+      <span class="info-list__icon"><%= icon(:sparkles) %></span>
+      <span><strong>Browse events</strong><span>Browse upcoming published events from the events page.</span></span>
+    <% end %>
+    <%= link_to my_tickets_path, class: "quick-link" do %>
+      <span class="info-list__icon"><%= icon(:ticket) %></span>
+      <span><strong>My tickets</strong><span>Your bookings and Ticket IDs</span></span>
+    <% end %>
+  </div>
 <% end %>

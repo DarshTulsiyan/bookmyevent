@@ -1,14 +1,20 @@
 <% content_for :title, "Published events | Admin | BookMyEvent" %>
 
-<header>
-  <h1>Published events</h1>
-  <p>Approved events currently published on BookMyEvent.</p>
+<header class="page-header">
+  <div>
+    <span class="eyebrow"><%= icon(:shield, size: 14) %> Admin</span>
+    <h1>Published events</h1>
+    <p>Approved events currently published on BookMyEvent.</p>
+  </div>
 </header>
 
 <%= render "navigation" %>
 
-<section aria-labelledby="published-events-heading">
-  <h2 id="published-events-heading">Approved events</h2>
+<section class="card card--flush" aria-labelledby="published-events-heading">
+  <div class="card__head" style="padding: 1.25rem 1.25rem 0">
+    <h2 id="published-events-heading" class="card__title"><%= icon(:globe) %> Approved events</h2>
+    <span class="chip"><%= pluralize(@events.size, "event") %></span>
+  </div>
   <%= render "events_table",
              events: @events,
              caption: "Published events",
