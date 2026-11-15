@@ -1,24 +1,72 @@
-<h1>My Tickets</h1>
+<% content_for :title, "My Tickets | BookMyEvent" %>
+<% upcoming_count = @bookings.count { |booking| booking.event.starts_at.future? } %>
 
-<% if @bookings.empty? %>
-  <p>You haven't booked any tickets yet.</p>
-<% else %>
-  <% @bookings.each do |booking| %>
-    <section aria-labelledby="booking-<%= booking.id %>">
-      <h2 id="booking-<%= booking.id %>">Booking #<%= booking.id %> — <%= booking.event.title %></h2>
-      <p>When: <%= l booking.event.starts_at, format: :long %></p>
-      <p>Where: <%= booking.event.venue %></p>
-      <table>
-        <thead><tr><th scope="col">Ticket ID</th><th scope="col">Tier</th></tr></thead>
-        <tbody>
+<div data-controller="filter">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow"><%= icon(:ticket, size: 14) %> Wallet</span>
+      <h1>My Tickets</h1>
+      <p><%= pluralize(@bookings.sum { |booking| booking.tickets.size }, "ticket") %> across <%= pluralize(@bookings.size, "booking") %></p>
+    </div>
+    <% if @bookings.any? %>
+      <div class="segmented" role="group" aria-label="Filter bookings">
+        <button type="button" aria-pressed="true" data-filter-target="button" data-filter-value-param="all" data-action="filter#select">All <span class="count"><%= @bookings.size %></span></button>
+        <button type="button" aria-pressed="false" data-filter-target="button" data-filter-value-param="upcoming" data-action="filter#select">Upcoming <span class="count"><%= upcoming_count %></span></button>
+        <button type="button" aria-pressed="false" data-filter-target="button" data-filter-value-param="past" data-action="filter#select">Past <span class="count"><%= @bookings.size - upcoming_count %></span></button>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @bookings.empty? %>
+    <div class="empty-state">
+      <div class="empty-state__icon"><%= icon(:ticket, size: 24) %></div>
+      <h2>No tickets yet</h2>
+      <p>You haven't booked any tickets yet.</p>
+      <%= link_to events_path, class: "btn btn--primary" do %><%= icon(:sparkles, size: 16) %> Find an event<% end %>
+    </div>
+  <% else %>
+    <% @bookings.each do |booking| %>
+      <% event = booking.event %>
+      <% upcoming = event.starts_at.future? %>
+      <section class="booking-block" aria-labelledby="booking-<%= booking.id %>" data-filter-target="item" data-filter-keys="<%= upcoming ? "upcoming" : "past" %>">
+        <div class="booking-block__head">
+          <div>
+            <h2 id="booking-<%= booking.id %>">Booking #<%= booking.id %> — <%= event.title %></h2>
+            <p>
+              <span><%= icon(:calendar, size: 14) %> When: <%= l event.starts_at, format: :long %></span>
+              <span><%= icon(:pin, size: 14) %> Where: <%= event.venue %></span>
+            </p>
+          </div>
+          <%= link_to event_path(event), class: "btn btn--ghost btn--sm" do %>View event <%= icon(:arrow_right, size: 14) %><% end %>
+        </div>
+
+        <div class="ticket-grid">
           <% booking.tickets.sort_by(&:id).each do |ticket| %>
-            <tr><td><%= ticket.ticket_code %></td><td><%= ticket.ticket_tier.name %></td></tr>
+            <article class="ticket-stub <%= "is-past" unless upcoming %>" style="--hue: <%= event_hue(event) %>">
+              <div class="ticket-stub__main">
+                <span class="ticket-stub__tier"><%= ticket.ticket_tier.name %></span>
+                <span class="ticket-stub__event"><%= event.title %></span>
+                <span class="ticket-stub__date"><%= l event.starts_at, format: :short %> &middot; <%= event.venue %></span>
+              </div>
+              <div class="ticket-stub__side">
+                <span class="ticket-stub__label">Ticket ID</span>
+                <code class="ticket-stub__code"><%= ticket.ticket_code %></code>
+                <button type="button"
+                        class="copy-btn"
+                        data-controller="clipboard"
+                        data-clipboard-text-value="<%= ticket.ticket_code %>"
+                        data-action="clipboard#copy"
+                        aria-label="Copy ticket ID <%= ticket.ticket_code %>">
+                  <%= icon(:copy, size: 12) %><span data-clipboard-target="label">Copy</span>
+                </button>
+              </div>
+            </article>
           <% end %>
-        </tbody>
-      </table>
-      <p><%= link_to "View event", event_path(booking.event) %></p>
-    </section>
+        </div>
+      </section>
+    <% end %>
+    <div class="empty-state" data-filter-target="empty" hidden><p style="margin:0">No bookings in this view.</p></div>
   <% end %>
-<% end %>
 
-<p><%= link_to "Browse events", events_path %></p>
+  <p><%= link_to events_path, class: "back-link" do %><%= icon(:arrow_left, size: 15) %> Browse events<% end %></p>
+</div>

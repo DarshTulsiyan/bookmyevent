@@ -16,14 +16,14 @@ class AdminController < ApplicationController
   end
 
   def pending_events
-    @events = Event.pending.includes(:organizer).order(:created_at)
+    @events = Event.pending.includes(:organizer).with_attached_authorization_document.order(:created_at)
   end
 
   def published_events
-    @events = Event.approved.includes(:organizer).order(:starts_at)
+    @events = Event.approved.includes(:organizer).with_attached_authorization_document.order(:starts_at)
   end
 
   def rejected_events
-    @events = Event.rejected.includes(:organizer).order(created_at: :desc)
+    @events = Event.rejected.includes(:organizer).with_attached_authorization_document.order(created_at: :desc)
   end
 end

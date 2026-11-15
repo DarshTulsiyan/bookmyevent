@@ -1,4 +1,6 @@
 class EventsController < ApplicationController
+  VIEWABLE_DOCUMENT_TYPES = %w[application/pdf image/jpeg image/png].freeze
+
   before_action :organizer_only, only: %i[new create edit update submit_for_review]
   before_action :admin_only, only: %i[approve reject]
   before_action :own_event_only, only: %i[edit update submit_for_review]
@@ -128,11 +130,22 @@ class EventsController < ApplicationController
 
     data = document.download
     response.headers["Cache-Control"] = "private, no-store"
+    response.headers["X-Content-Type-Options"] = "nosniff"
 
-    send_data data,
-              filename: document.filename.to_s,
-              type: "application/octet-stream",
-              disposition: "attachment"
+    # ?view=1 opens the file in the browser, but only for the types we accept
+    # at upload (verified by file signature); everything else stays a download.
+    if params[:view].present? && VIEWABLE_DOCUMENT_TYPES.include?(document.content_type)
+      response.headers["Content-Security-Policy"] = "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; frame-ancestors 'self'"
+      send_data data,
+                filename: document.filename.to_s,
+                type: document.content_type,
+                disposition: "inline"
+    else
+      send_data data,
+                filename: document.filename.to_s,
+                type: "application/octet-stream",
+                disposition: "attachment"
+    end
   rescue ActiveStorage::FileNotFoundError
     head :not_found
   end

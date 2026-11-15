@@ -1,0 +1,8 @@
+<section id="ticket-tiers" class="card" aria-labelledby="ticket-tiers-heading">
+  <div class="card__head">
+    <h2 id="ticket-tiers-heading" class="card__title"><%= icon(:ticket) %> Ticket tiers</h2>
+    <span class="chip"><%= pluralize(TicketTier.where(event_id: @event.id).count, "tier") %></span>
+  </div>
+
+  <%= render "events/ticket_tiers" %>
+</section>

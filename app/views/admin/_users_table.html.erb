@@ -1,21 +1,49 @@
-<table>
-  <caption>User accounts</caption>
-  <thead>
-    <tr>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Role</th>
-      <th scope="col">Account status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% users.each do |user| %>
-      <tr>
-        <td><%= user.name %></td>
-        <td><%= user.email %></td>
-        <td><%= user.role.humanize %></td>
-        <td><%= user.suspended? ? "Suspended" : "Active" %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div data-controller="filter">
+  <div class="toolbar">
+    <label class="input-icon">
+      <span class="sr-only">Search users</span>
+      <%= icon(:search) %>
+      <input type="search" class="input-plain input--sm" placeholder="Search name or email…" autocomplete="off"
+             data-filter-target="query" data-action="input->filter#apply">
+    </label>
+    <div class="segmented" role="group" aria-label="Filter by role">
+      <button type="button" aria-pressed="true" data-filter-target="button" data-filter-value-param="all" data-action="filter#select">All <span class="count"><%= users.size %></span></button>
+      <% User.roles.each_key do |role| %>
+        <button type="button" aria-pressed="false" data-filter-target="button" data-filter-value-param="<%= role %>" data-action="filter#select">
+          <%= role.humanize.pluralize %> <span class="count"><%= users.count { |user| user.role == role } %></span>
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="sr-only">User accounts</caption>
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Role</th>
+          <th scope="col">Account status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.each do |user| %>
+          <tr data-filter-target="item" data-filter-keys="<%= user.role %>" data-filter-text="<%= "#{user.name} #{user.email}".downcase %>">
+            <td><span class="cell-user"><%= avatar(user.name) %><%= user.name %></span></td>
+            <td><%= user.email %></td>
+            <td><span class="role-pill role-pill--<%= user.role %>"><%= user.role.humanize %></span></td>
+            <td>
+              <% if user.suspended? %>
+                <span class="status-pill status-pill--suspended"><%= icon(:ban, size: 13) %>Suspended</span>
+              <% else %>
+                <span class="status-pill status-pill--active"><%= icon(:check, size: 13) %>Active</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <p class="table-empty" data-filter-target="empty" hidden>No users match your filters.</p>
+  </div>
+</div>

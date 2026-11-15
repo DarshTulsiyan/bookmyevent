@@ -1,0 +1,15 @@
+<% has_tiers = TicketTier.where(event_id: @event.id).exists? %>
+<% submitted = @event.pending? || @event.approved? %>
+<%
+  steps = [
+    [ "Event details", "is-done" ],
+    [ "Ticket tiers", has_tiers ? "is-done" : "is-current" ],
+    [ "Submit for review", if submitted then "is-done" elsif @event.rejected? then "is-blocked" elsif has_tiers then "is-current" end ],
+    [ "Live", if @event.approved? then "is-done" elsif @event.pending? then "is-current" end ]
+  ]
+%>
+<ol id="publish-steps" class="steps" aria-label="Publishing progress">
+  <% steps.each do |label, state| %>
+    <li class="step <%= state %>" <%= "aria-current=step" if state == "is-current" %>><%= label %></li>
+  <% end %>
+</ol>

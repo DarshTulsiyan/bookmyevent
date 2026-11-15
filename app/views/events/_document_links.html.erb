@@ -1,0 +1,38 @@
+<%# Preview (modal) + download links for an event's authorization document.
+    Without JavaScript the View link simply opens the file in a new tab. %>
+<% compact = local_assigns.fetch(:compact, false) %>
+<% document = event.authorization_document %>
+<% if document.attached? %>
+  <% preview_data = {
+       controller: "doc-preview",
+       action: "doc-preview#open",
+       turbo: false,
+       doc_preview_url_value: authorization_document_event_path(event, view: 1),
+       doc_preview_download_value: authorization_document_event_path(event),
+       doc_preview_name_value: document.filename.to_s,
+       doc_preview_details_value: "#{document.content_type.to_s.split("/").last.upcase} · #{number_to_human_size(document.byte_size)} · #{event.title}"
+     } %>
+  <div class="doc-links">
+    <% if compact %>
+      <%= link_to authorization_document_event_path(event, view: 1),
+                  class: "btn btn--soft btn--sm",
+                  target: "_blank", rel: "noopener",
+                  title: document.filename.to_s,
+                  data: preview_data do %><%= icon(:eye, size: 14) %> View<% end %>
+      <%= link_to authorization_document_event_path(event),
+                  class: "icon-button doc-links__download",
+                  data: { turbo: false },
+                  aria: { label: "Download #{document.filename}" } do %><%= icon(:download, size: 15) %><% end %>
+    <% else %>
+      <%= link_to authorization_document_event_path(event, view: 1),
+                  class: "btn btn--ghost btn--sm",
+                  target: "_blank", rel: "noopener",
+                  data: preview_data do %><%= icon(:eye, size: 15) %> View document<% end %>
+      <%= link_to authorization_document_event_path(event),
+                  class: "btn btn--ghost btn--sm",
+                  data: { turbo: false } do %><%= icon(:download, size: 15) %> Download authorization document<% end %>
+    <% end %>
+  </div>
+<% elsif compact %>
+  <span class="muted small">None</span>
+<% end %>

@@ -1,42 +1,106 @@
 <% if events.any? %>
-  <table>
-    <caption><%= caption %></caption>
-    <thead>
-      <tr>
-        <th scope="col">Event</th>
-        <th scope="col">Organizer</th>
-        <th scope="col">Venue</th>
-        <th scope="col">Starts</th>
-        <th scope="col">Capacity</th>
-        <th scope="col">Status</th>
-        <% if approval_actions %>
-          <th scope="col">Actions</th>
-        <% end %>
-      </tr>
-    </thead>
-    <tbody>
-      <% events.each do |event| %>
-        <tr>
-          <td><%= link_to event.title, event_path(event) %></td>
-          <td><%= event.organizer.name %></td>
-          <td><%= event.venue %></td>
-          <td><%= l(event.starts_at, format: :long) %></td>
-          <td><%= event.total_capacity %></td>
-          <td><%= event_status_badge(event) %></td>
-          <% if approval_actions %>
-            <td>
-              <%= button_to "Approve & publish",
-              approve_event_path(event),
-              method: :patch,
-              class: "admin-review-button" %>
+  <% with_doc = events.count { |event| event.authorization_document.attached? } %>
+  <div data-controller="filter">
+    <div class="toolbar queue-toolbar">
+      <label class="input-icon">
+        <span class="sr-only">Search events</span>
+        <%= icon(:search) %>
+        <input type="search" class="input-plain input--sm" autocomplete="off"
+               placeholder="Search event, venue or organizer…"
+               data-filter-target="query" data-action="input->filter#apply">
+      </label>
 
-              <%= render "events/reject_form", event: event %>
-            </td>
-          <% end %>
+      <div class="segmented" role="group" aria-label="Filter by document">
+        <button type="button" aria-pressed="true" data-filter-target="button" data-filter-value-param="all" data-action="filter#select">All <span class="count"><%= events.size %></span></button>
+        <button type="button" aria-pressed="false" data-filter-target="button" data-filter-value-param="with-doc" data-action="filter#select">Documents <span class="count"><%= with_doc %></span></button>
+        <button type="button" aria-pressed="false" data-filter-target="button" data-filter-value-param="no-doc" data-action="filter#select">Missing <span class="count"><%= events.size - with_doc %></span></button>
+      </div>
+
+      <label>
+        <span class="sr-only">Sort events</span>
+        <select class="input-plain input--sm queue-sort" data-filter-target="sort" data-action="change->filter#sort">
+          <option value="updated:asc">Oldest update first</option>
+          <option value="updated:desc">Newest update first</option>
+          <option value="starts:asc">Event date</option>
+          <option value="title:asc">Title A–Z</option>
+        </select>
+      </label>
+    </div>
+
+    <table class="queue <%= "queue--readonly" unless approval_actions %>">
+      <caption class="sr-only"><%= caption %></caption>
+      <thead class="sr-only">
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Event</th>
+          <th scope="col"><%= approval_actions ? "Review" : "Status" %></th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody data-filter-target="list">
+        <% events.each do |event| %>
+          <% document = event.authorization_document %>
+          <tr class="queue-row"
+              style="--hue: <%= event_hue(event) %>"
+              data-filter-target="item"
+              data-filter-keys="<%= document.attached? ? "with-doc" : "no-doc" %>"
+              data-filter-text="<%= [ event.title, event.venue, event.organizer.name, event.organizer.email ].join(" ").downcase %>"
+              data-sort-updated="<%= event.updated_at.to_i %>"
+              data-sort-starts="<%= event.starts_at.to_i %>"
+              data-sort-title="<%= event.title.downcase %>">
+            <td class="queue-row__date"><%= event_date_tile(event) %></td>
+
+            <td class="queue-row__info">
+              <%= link_to event.title, event_path(event), class: "queue-row__title" %>
+
+              <div class="queue-row__meta">
+                <span><%= icon(:clock, size: 14) %><%= l(event.starts_at, format: :long) %></span>
+                <span><%= icon(:pin, size: 14) %><%= event.venue %></span>
+                <span><%= icon(:users, size: 14) %><%= event.total_capacity %> seats</span>
+              </div>
+
+              <div class="queue-row__by">
+                <%= avatar(event.organizer.name, size: :sm) %>
+                <span><strong><%= event.organizer.name %></strong> &middot; updated <%= time_ago_in_words(event.updated_at) %> ago</span>
+              </div>
+
+              <% if document.attached? %>
+                <div class="queue-row__file">
+                  <span class="queue-row__file-name" title="<%= document.filename %>"><%= icon(:file, size: 15) %><span><%= document.filename %></span></span>
+                  <%= render "events/document_links", event: event, compact: true %>
+                </div>
+              <% else %>
+                <div class="queue-row__file queue-row__file--missing"><%= icon(:alert, size: 15) %> No authorization document uploaded</div>
+              <% end %>
+
+              <% if event.rejected? && event.rejection_reason.present? %>
+                <p class="queue-row__reason"><%= icon(:alert, size: 14) %> <%= event.rejection_reason %></p>
+              <% end %>
+            </td>
+
+            <td class="queue-row__actions">
+              <%= event_status_badge(event) %>
+              <% if approval_actions %>
+                <%= button_to "Approve & publish",
+                              approve_event_path(event),
+                              method: :patch,
+                              class: "admin-review-button queue-row__approve",
+                              form: { class: "queue-row__approve-form", data: { turbo_confirm: "Publish \"#{event.title}\" to the public listing?" } } %>
+                <%= render "events/reject_form", event: event, compact: true %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="empty-state queue-empty" data-filter-target="empty" hidden>
+      <div class="empty-state__icon"><%= icon(:search, size: 24) %></div>
+      <p style="margin:0">No events match your search.</p>
+    </div>
+  </div>
 <% else %>
-  <p><%= empty_message %></p>
+  <div class="empty-state" style="margin: 1.25rem; border-radius: 16px">
+    <div class="empty-state__icon"><%= icon(:check, size: 24) %></div>
+    <p style="margin:0"><%= empty_message %></p>
+  </div>
 <% end %>
