@@ -17,6 +17,11 @@ Rails.application.routes.draw do
   get "/signup", to: "users#new", as: :signup
   post "/signup", to: "users#create"
 
+  resources :admin_access_requests,
+            only: %i[new create],
+            path: "admin-access-requests",
+            as: :access_applications
+
   get "/login", to: "sessions#new", as: :login
   post "/login", to: "sessions#create"
 
@@ -33,6 +38,17 @@ Rails.application.routes.draw do
   get "/admin/events/pending", to: "admin#pending_events", as: :admin_pending_events
   get "/admin/events/published", to: "admin#published_events", as: :admin_published_events
   get "/admin/events/rejected", to: "admin#rejected_events", as: :admin_rejected_events
+
+  namespace :admin do
+    resources :access_requests,
+              only: %i[index show],
+              path: "access-requests" do
+      member do
+        patch :approve
+        patch :reject
+      end
+    end
+  end
 
   resources :events, only: %i[index show new create edit update] do
     post "tiers", to: "ticket_tiers#create", as: :tiers

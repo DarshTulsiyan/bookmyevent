@@ -1,0 +1,51 @@
+<% content_for :title, "Request admin access | BookMyEvent" %>
+
+<header class="page-header">
+  <div>
+    <span class="eyebrow">BookMyEvent</span>
+    <h1>Request admin access</h1>
+    <p>Requests are reviewed by the designated administrator. Your email must not already belong to an account.</p>
+  </div>
+</header>
+
+<section class="card" aria-labelledby="access-request-heading">
+  <h2 id="access-request-heading" class="card__title">Your request</h2>
+  <%= form_with model: @admin_access_request, url: access_applications_path, class: "form" do |form| %>
+    <% if @admin_access_request.errors.any? %>
+      <div class="alert alert--danger" role="alert">
+        <p>Please correct the following:</p>
+        <ul>
+          <% @admin_access_request.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= form.label :name %>
+      <%= form.text_field :name, required: true, autocomplete: "name", maxlength: 255 %>
+    </div>
+    <div class="field">
+      <%= form.label :email %>
+      <%= form.email_field :email, required: true, autocomplete: "email", maxlength: 255 %>
+      <p class="field__hint">This must be an email address that is not registered for another role.</p>
+    </div>
+    <div class="field">
+      <%= form.label :reason, "Why do you need admin access?" %>
+      <%= form.text_area :reason, required: true, maxlength: 1_000, rows: 4 %>
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <%= form.label :password, "Choose a password" %>
+        <%= form.password_field :password, required: true, minlength: 8, maxlength: 72, autocomplete: "new-password" %>
+      </div>
+      <div class="field">
+        <%= form.label :password_confirmation, "Confirm password" %>
+        <%= form.password_field :password_confirmation, required: true, minlength: 8, maxlength: 72, autocomplete: "new-password" %>
+      </div>
+    </div>
+    <p class="field__hint">Your password is stored as a password digest and used only if the request is approved.</p>
+    <%= form.submit "Submit request", class: "btn btn--primary" %>
+  <% end %>
+</section>
