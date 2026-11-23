@@ -1,0 +1,38 @@
+<% if events.any? %>
+  <section class="recommendations" aria-labelledby="similar-events-heading" data-controller="recommendations">
+    <div class="recommendations__heading">
+      <h2 id="similar-events-heading"><%= icon(:sparkles) %> Similar Events</h2>
+      <div class="recommendations__controls" data-recommendations-target="controls" hidden>
+        <button type="button" class="recommendations__button" aria-label="Previous similar events"
+                aria-controls="similar-events-track" data-recommendations-target="previous"
+                data-action="recommendations#previous">
+          <%= icon(:arrow_left, size: 18) %>
+        </button>
+        <button type="button" class="recommendations__button" aria-label="Next similar events"
+                aria-controls="similar-events-track" data-recommendations-target="next"
+                data-action="recommendations#next">
+          <%= icon(:arrow_right, size: 18) %>
+        </button>
+      </div>
+    </div>
+
+    <ul id="similar-events-track" class="recommendations__track" tabindex="0"
+        aria-label="Similar events" data-recommendations-target="track"
+        data-action="scroll->recommendations#update">
+      <% events.each do |event| %>
+        <li class="recommendation-card" style="--hue: <%= event_hue(event) %>">
+          <div class="recommendation-card__accent">
+            <%= event_date_tile(event) %>
+            <span class="recommendation-card__seats"><%= pluralize(event.seats_left, "seat") %> left</span>
+          </div>
+          <div class="recommendation-card__body">
+            <h3><%= link_to event.title, event_path(event), class: "stretched-link" %></h3>
+            <p><%= icon(:clock, size: 15) %> <%= event.starts_at.strftime("%a, %b %-d · %-I:%M %p") %></p>
+            <p><%= icon(:pin, size: 15) %> <span><%= event.venue %></span></p>
+            <span class="recommendation-card__link">View event <%= icon(:arrow_right, size: 15) %></span>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>

@@ -14,6 +14,7 @@ class EventsController < ApplicationController
     return head :not_found unless @event&.visible_to?(current_user)
 
     @ticket_tiers = @event.ticket_tiers.order(:id)
+    @recommended_events = EventRecommender.new(@event).call
   end
 
   def new

@@ -12,7 +12,7 @@ class EventRecommender
     return [] unless @event.publicly_visible?
 
     events = Event.publicly_visible.includes(:ticket_tiers).to_a
-    documents = events.to_h { |event| [event.id, term_counts(event)] }
+    documents = events.to_h { |event| [ event.id, term_counts(event) ] }
 
     frequencies = Hash.new(0)
     documents.each_value do |counts|
@@ -27,9 +27,9 @@ class EventRecommender
 
     events
       .reject { |event| event.id == @event.id || event.seats_left <= 0 }
-      .map { |event| [event, cosine_similarity(source, vectors.fetch(event.id))] }
+      .map { |event| [ event, cosine_similarity(source, vectors.fetch(event.id)) ] }
       .select { |_, score| score.positive? }
-      .sort_by { |event, score| [-score, event.starts_at, event.id] }
+      .sort_by { |event, score| [ -score, event.starts_at, event.id ] }
       .first(limit)
       .map(&:first)
   end
@@ -55,7 +55,7 @@ class EventRecommender
       inverse_document_frequency =
         Math.log((document_count + 1.0) / (frequencies.fetch(term) + 1.0)) + 1.0
 
-      [term, term_frequency * inverse_document_frequency]
+      [ term, term_frequency * inverse_document_frequency ]
     end
   end
 
