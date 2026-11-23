@@ -1,0 +1,52 @@
+<% content_for :title, "Access request | Admin | BookMyEvent" %>
+
+<header class="page-header">
+  <div>
+    <span class="eyebrow"><%= icon(:shield, size: 14) %> Admin</span>
+    <h1>Admin access request</h1>
+    <p><%= link_to "Back to access requests", admin_access_requests_path %></p>
+  </div>
+  <span class="badge badge-<%= @admin_access_request.status %>"><%= @admin_access_request.status.humanize %></span>
+</header>
+
+<%= render "admin/navigation" %>
+
+<section class="card" aria-labelledby="applicant-heading">
+  <h2 id="applicant-heading" class="card__title">Applicant details</h2>
+  <dl class="info-list">
+    <div><dt>Name</dt><dd><%= @admin_access_request.name %></dd></div>
+    <div><dt>Email</dt><dd><%= @admin_access_request.email %></dd></div>
+    <div><dt>Submitted</dt><dd><%= l @admin_access_request.created_at, format: :long %></dd></div>
+    <div><dt>Reason</dt><dd><%= simple_format(@admin_access_request.reason) %></dd></div>
+    <% if @admin_access_request.reviewed_by %>
+      <div><dt>Reviewed by</dt><dd><%= @admin_access_request.reviewed_by.name %></dd></div>
+      <div><dt>Reviewed</dt><dd><%= l @admin_access_request.reviewed_at, format: :long %></dd></div>
+      <% if @admin_access_request.reviewer_note.present? %>
+        <div><dt>Reviewer note</dt><dd><%= simple_format(@admin_access_request.reviewer_note) %></dd></div>
+      <% end %>
+    <% end %>
+  </dl>
+</section>
+
+<% if @admin_access_request.pending? %>
+  <div class="dash-grid">
+    <section class="card" aria-labelledby="approve-request-heading">
+      <h2 id="approve-request-heading" class="card__title">Approve request</h2>
+      <p>The email will become a new admin account using the password the applicant chose.</p>
+      <%= form_with url: approve_admin_access_request_path(@admin_access_request), method: :patch, class: "form" do |form| %>
+        <%= form.label :reviewer_note, "Note for the audit history" %>
+        <%= form.text_area :reviewer_note, id: "approval-reviewer-note", maxlength: 1_000, rows: 2 %>
+        <%= form.submit "Approve admin access", class: "btn btn--primary" %>
+      <% end %>
+    </section>
+    <section class="card" aria-labelledby="reject-request-heading">
+      <h2 id="reject-request-heading" class="card__title">Reject request</h2>
+      <p>Rejected requests do not create accounts. The applicant may submit a new request later.</p>
+      <%= form_with url: reject_admin_access_request_path(@admin_access_request), method: :patch, class: "form" do |form| %>
+        <%= form.label :reviewer_note, "Reason for rejection" %>
+        <%= form.text_area :reviewer_note, id: "rejection-reviewer-note", maxlength: 1_000, rows: 2 %>
+        <%= form.submit "Reject request", class: "btn btn--danger" %>
+      <% end %>
+    </section>
+  </div>
+<% end %>

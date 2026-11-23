@@ -52,6 +52,13 @@
       <dt>Rejected events</dt>
       <dd><%= link_to @rejected_event_count, admin_rejected_events_path %></dd>
     </div>
+    <% if current_user.can_review_admin_access_requests? %>
+      <div class="stat-card stat-card--warning">
+        <span class="stat-card__icon"><%= icon(:users) %></span>
+        <dt>Admin access requests</dt>
+        <dd><%= link_to @pending_admin_access_request_count, admin_access_requests_path %></dd>
+      </div>
+    <% end %>
   </dl>
 </section>
 

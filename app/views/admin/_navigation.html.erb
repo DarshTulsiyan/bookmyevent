@@ -2,6 +2,9 @@
   <ul>
     <li><%= admin_tab "Dashboard", admin_path, :dashboard %></li>
     <li><%= admin_tab "Users", admin_users_path, :users %></li>
+    <% if current_user.can_review_admin_access_requests? %>
+      <li><%= admin_tab "Admin access requests", admin_access_requests_path, :users, count: AdminAccessRequest.pending.count %></li>
+    <% end %>
     <li><%= admin_tab "Events awaiting approval", admin_pending_events_path, :clock, count: Event.pending.count %></li>
     <li><%= admin_tab "Published events", admin_published_events_path, :globe %></li>
     <li><%= admin_tab "Rejected events", admin_rejected_events_path, :ban %></li>
