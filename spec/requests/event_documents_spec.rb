@@ -77,6 +77,33 @@ RSpec.describe "Event authorization documents", type: :request do
     expect(event.authorization_document.download).to eq(replacement)
   end
 
+
+  it "logs storage errors without leaking credentials and cleans up the blob" do
+    log_in(event.organizer)
+    allow(ENV).to receive(:[]).and_call_original
+    allow(ENV).to receive(:[]).with("B2_KEY_ID").and_return("secret-key-id")
+    allow(ENV).to receive(:[]).with("B2_APPLICATION_KEY").and_return(nil)
+    allow_any_instance_of(ActiveStorage::Blob).to receive(:upload_without_unfurling)
+      .and_raise(StandardError, "Rejected secret-key-id")
+    expect(Rails.logger).to receive(:error).with(
+      a_string_including("Authorization document upload failed", "[FILTERED]")
+    )
+    expect { submit_document(pdf) }.not_to change(ActiveStorage::Blob, :count)
+    expect(flash[:alert]).to include("could not be uploaded")
+    expect(event.reload).to be_draft
+  end
+
+  it "reports a save validation failure and cleans up the uploaded blob" do
+    log_in(event.organizer)
+    allow_any_instance_of(Event).to receive(:submit_for_review) do |record, _blob|
+      record.errors.add(:base, "Review could not be saved")
+      false
+    end
+    expect { submit_document(pdf) }.not_to change(ActiveStorage::Blob, :count)
+    expect(flash[:alert]).to include("Review could not be saved")
+    expect(event.reload).to be_draft
+  end
+
   describe "downloading proof after publication" do
     before do
       event.update!(status: :approved)
