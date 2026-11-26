@@ -6,6 +6,12 @@ module EventsHelper
     "rejected" => "Rejected"
   }.freeze
 
+  def ticket_price_label(tier)
+    return "Free" if tier.price_cents.zero?
+
+    "#{number_to_currency(BigDecimal(tier.price_cents.to_s) / 100)} USD"
+  end
+
   def event_status_badge(event)
     tag.span STATUS_LABELS.fetch(event.status),
              class: "badge badge-#{event.status}"
@@ -17,6 +23,12 @@ module EventsHelper
   # A stable accent hue per event so every card gets its own gradient.
   def event_hue(event)
     EVENT_HUES[event.id.to_i % EVENT_HUES.size]
+  end
+
+  def ticket_price_label(tier)
+    return "Free" if tier.price_cents.zero?
+
+    "#{number_to_currency(BigDecimal(tier.price_cents.to_s) / 100)} USD"
   end
 
   def event_date_tile(event, css: nil)

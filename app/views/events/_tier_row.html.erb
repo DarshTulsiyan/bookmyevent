@@ -1,5 +1,6 @@
 <tr>
   <td><%= tier.name %></td>
+  <td><%= ticket_price_label(tier) %></td>
   <td>
     <%= tier.sold_out? ? "Sold Out" : tier.seats_left %>
     <%= meter(tier.capacity.to_i.positive? ? (tier.tickets_sold * 100.0 / tier.capacity) : 0,

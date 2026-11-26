@@ -52,7 +52,7 @@ class TicketTiersController < ApplicationController
   end
 
   def ticket_tier_params
-    params.require(:ticket_tier).permit(:name, :capacity)
+    params.require(:ticket_tier).permit(:name, :capacity, :price)
   end
 
   # Turbo (JS) requests get the tier panel updated in place; plain HTML

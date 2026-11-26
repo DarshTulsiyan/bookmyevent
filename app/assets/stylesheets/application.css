@@ -840,7 +840,13 @@ ul { padding-left: 1.2rem; }
   margin-bottom: 1.5rem;
 }
 .tier-add h3 { display: flex; align-items: center; gap: 0.4rem; }
-.tier-add__form { display: grid; grid-template-columns: 1fr 160px auto; gap: 0.75rem; align-items: end; }
+.tier-add__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 140px auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
 .tier-add__form p { margin: 0; }
 @media (max-width: 640px) { .tier-add__form { grid-template-columns: 1fr; } }
 .tier-hint { margin: 0.6rem 0 0; font-size: 0.83rem; font-weight: 600; color: var(--muted); }

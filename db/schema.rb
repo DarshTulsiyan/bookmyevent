@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_205047) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_26_102638) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,9 +74,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_205047) do
     t.integer "tickets_sold", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "price_cents", default: 0, null: false
     t.index ["event_id", "name"], name: "index_ticket_tiers_on_event_id_and_name", unique: true
     t.index ["event_id"], name: "index_ticket_tiers_on_event_id"
     t.check_constraint "capacity > 0", name: "ticket_tiers_capacity_positive"
+    t.check_constraint "price_cents >= 0", name: "ticket_tiers_price_nonnegative"
     t.check_constraint "tickets_sold >= 0 AND tickets_sold <= capacity", name: "ticket_tiers_tickets_sold_within_capacity"
   end
 

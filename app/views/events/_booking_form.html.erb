@@ -27,7 +27,10 @@
               <% else %>
                 <div>
                   <label for="quantity_<%= tier.id %>" class="qty-row__name"><%= tier.name %><span class="sr-only"> quantity</span></label>
-                  <span class="qty-row__meta"><%= pluralize(tier.seats_left, "seat") %> left</span>
+                  <span class="qty-row__meta">
+                    <%= ticket_price_label(tier) %> ·
+                    <%= pluralize(tier.seats_left, "seat") %> left
+                  </span>
                 </div>
                 <div class="stepper">
                   <button type="button" class="stepper__btn" aria-label="One fewer <%= tier.name %> ticket" data-action="quantity#decrement"><%= icon(:minus, size: 16) %></button>
