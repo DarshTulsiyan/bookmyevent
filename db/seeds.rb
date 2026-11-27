@@ -17,20 +17,19 @@ if Rails.env.development?
   admin.password = "admin@123"
   admin.save!
 
-  sudo_email = ENV.fetch("SUDO_EMAIL", "").strip.downcase
-  sudo_password = ENV.fetch("SUDO_PASSWORD", "")
-  if sudo_email.present? || sudo_password.present?
-    raise "Set both SUDO_EMAIL and SUDO_PASSWORD to provision the sudo account" if sudo_email.blank? || sudo_password.blank?
-
-    sudo_user = User.find_or_initialize_by(email: sudo_email)
-    sudo_user.name = ENV.fetch("SUDO_NAME", "BookMyEvent Superuser")
-    sudo_user.role = :sudo
-    sudo_user.password = sudo_password
-    sudo_user.password_confirmation = sudo_password
-    sudo_user.save!
-  else
-    puts "[sudo setup] Skipped: set SUDO_EMAIL and SUDO_PASSWORD to provision the development sudo account."
+  # Keep this account available for local role-view checks without provisioning it in production.
+  sudo_email = "sudo_user@bookmyevent.com"
+  sudo_password = "sudo@123"
+  sudo_user = User.find_or_initialize_by(email: sudo_email)
+  if sudo_user.persisted? && !sudo_user.sudo?
+    raise "The development sudo email already belongs to a non-sudo account"
   end
+
+  sudo_user.name = "BookMyEvent Superuser"
+  sudo_user.role = :sudo
+  sudo_user.password = sudo_password
+  sudo_user.password_confirmation = sudo_password
+  sudo_user.save!
 end
 
 # Opt-in production provisioning for deployments without console access.
