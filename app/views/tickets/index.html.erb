@@ -59,6 +59,17 @@
                         aria-label="Copy ticket ID <%= ticket.ticket_code %>">
                   <%= icon(:copy, size: 12) %><span data-clipboard-target="label">Copy</span>
                 </button>
+                <div class="ticket-stub__qr">
+                 <span class="ticket-stub__label">Event Check-in QR</span>
+                <div class="ticket-stub__qr-image">
+                <%= raw(ticket.qr_code_svg) %>
+                </div>
+                <% if ticket.checked_in? %>
+                <span class="status-badge">Checked in</span>
+                <% else %>
+                <span>Not checked in</span>
+                <% end %>
+                </div>                
               </div>
             </article>
           <% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_205047) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_220556) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,7 +86,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_205047) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "booking_id", null: false
+    t.string "qr_token", null: false
     t.index ["booking_id"], name: "index_tickets_on_booking_id"
+    t.index ["qr_token"], name: "index_tickets_on_qr_token", unique: true
     t.index ["ticket_tier_id"], name: "index_tickets_on_ticket_tier_id"
   end
 

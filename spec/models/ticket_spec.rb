@@ -66,4 +66,52 @@ RSpec.describe Ticket, type: :model do
     expect(ticket.ticket_tier.destroy).to be false
     expect(Ticket.exists?(ticket.id)).to be true
   end
+
+  describe "QR token generation" do
+    it "automatically generates a secure QR token" do
+      ticket = FactoryBot.create(:ticket)
+
+      expect(ticket.qr_token).to be_present
+      expect(ticket.qr_token).to match(/\A[0-9a-f]{64}\z/)
+    end
+
+    it "generates a unique QR token for each ticket" do
+      first = FactoryBot.create(:ticket)
+      second = FactoryBot.create(:ticket)
+
+      expect(first.qr_token).not_to eq(second.qr_token)
+    end
+    it "generates a QR code in SVG format" do
+      ticket = FactoryBot.create(:ticket)
+
+      expect(ticket.qr_code_svg).to include("<svg")
+    end
+  end
+
+  describe "check-in" do
+    it "is not checked in initially" do
+      ticket = FactoryBot.create(:ticket)
+
+      expect(ticket.checked_in?).to be false
+      expect(ticket.checked_in_at).to be_nil
+    end
+
+    it "records the check-in timestamp" do
+      ticket = FactoryBot.create(:ticket)
+
+      expect { ticket.check_in! }
+        .to change { ticket.reload.checked_in_at }.from(nil)
+
+      expect(ticket.checked_in?).to be true
+    end
+
+    it "prevents duplicate check-ins" do
+      ticket = FactoryBot.create(:ticket)
+      ticket.check_in!
+      original_timestamp = ticket.reload.checked_in_at
+
+      expect(ticket.check_in!).to be false
+      expect(ticket.reload.checked_in_at).to eq(original_timestamp)
+    end
+  end
 end

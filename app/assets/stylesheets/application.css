@@ -1265,7 +1265,7 @@ kbd { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.1rem 0.4rem;
 .ticket-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
 .ticket-stub {
   --hue: 250;
-  position: relative; display: grid; grid-template-columns: 1fr auto;
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 180px;
   border-radius: 18px; overflow: hidden; color: #fff;
   background:
     radial-gradient(240px 140px at 0% 0%, hsl(calc(var(--hue) + 40) 95% 70% / 0.7), transparent 70%),
@@ -1291,6 +1291,19 @@ kbd { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.1rem 0.4rem;
 .ticket-stub__side::after { bottom: -10px; }
 .ticket-stub__label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; }
 .ticket-stub__code { font-size: 1.15rem; font-weight: 800; letter-spacing: 0.04em; }
+.ticket-stub__side {
+  min-width: 0;
+}
+.ticket-stub__qr-image {
+  width: 140px;
+  max-width: 100%;
+  aspect-ratio: 1;
+}
+.ticket-stub__qr-image svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 .copy-btn {
   display: inline-flex; align-items: center; gap: 0.3rem;
   border: 1px solid rgb(255 255 255 / 0.35); background: rgb(255 255 255 / 0.15); color: #fff;
