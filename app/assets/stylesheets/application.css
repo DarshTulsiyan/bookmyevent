@@ -1216,7 +1216,7 @@ kbd { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.1rem 0.4rem;
 .status-pill--active { background: var(--success-soft); color: var(--success); }
 .status-pill--suspended { background: var(--danger-soft); color: var(--danger); }
 .role-pill { font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 99px; background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
-.role-pill--admin { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
+.role-pill--admin, .role-pill--sudo { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .role-pill--organizer { background: var(--info-soft); color: var(--info); border-color: transparent; }
 .table-empty { padding: 2rem; text-align: center; color: var(--muted); margin: 0; }
 

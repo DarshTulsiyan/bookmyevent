@@ -97,7 +97,7 @@
     <div class="empty-state__icon"><%= icon(:calendar, size: 24) %></div>
     <h2>Nothing on the calendar</h2>
     <p>No upcoming events yet. Check back soon.</p>
-    <% if current_user&.organizer? %>
+    <% if current_user&.can_access_role_view?(:organizer) %>
       <%= link_to new_event_path, class: "btn btn--primary" do %><%= icon(:plus, size: 16) %> Host the first event<% end %>
     <% end %>
   </div>
