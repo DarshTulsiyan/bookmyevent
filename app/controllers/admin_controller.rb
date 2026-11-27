@@ -7,6 +7,12 @@ class AdminController < ApplicationController
     @pending_event_count = Event.pending.count
     @published_event_count = Event.approved.count
     @rejected_event_count = Event.rejected.count
+    @pending_admin_access_request_count =
+      if current_user.can_review_admin_access_requests?
+        AdminAccessRequest.pending.count
+      else
+        0
+      end
     @user_role_counts = User.roles.keys.index_with { |role| User.where(role: role).count }
     @users = User.order(:name, :email)
   end

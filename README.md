@@ -13,6 +13,7 @@ BookMyEvent is an event booking application built with Ruby on Rails. Organizers
 - View personal bookings and individual Ticket IDs on the My Tickets page.
 - Display sold-out tiers and prevent bookings beyond capacity.
 - Show validation errors and booking feedback.
+- Provide a development sudo account for accessing all three role workspaces.
 
 ## Requirements
 
@@ -72,13 +73,15 @@ Connection settings are in `config/database.yml`. For a different development se
 
 ### 5. Set up admin access
 
-The development seed provisions a local admin account:
+The development seed provisions the local admin and sudo accounts:
 
 ```bash
 bin/rails db:seed
 ```
 
-Obtain admin access details privately from the project maintainer. Public signup only creates attendee or organizer accounts. The development seed does not create admins in production.
+Obtain the seeded login details privately from the project maintainer. Public signup only creates attendee or organizer accounts. These default local accounts are not provisioned in production.
+
+The local sudo account can open attendee, organizer, and admin workspaces. Organizer event management remains scoped to events owned by that account. Its development-only credentials are not used in production.
 
 ## Running the Application
 

@@ -65,15 +65,15 @@
           <% if current_user %>
             <%= nav_link "My account", account_path, icon_name: :user %>
 
-            <% if current_user.attendee? %>
+            <% if current_user.can_access_role_view?(:attendee) %>
               <%= nav_link "My Tickets", my_tickets_path, icon_name: :ticket %>
             <% end %>
 
-            <% if current_user.admin? %>
+            <% if current_user.can_access_role_view?(:admin) %>
               <%= nav_link "Admin dashboard", admin_path, icon_name: :dashboard %>
             <% end %>
 
-            <% if current_user.organizer? %>
+            <% if current_user.can_access_role_view?(:organizer) %>
               <%= nav_link "Create event", new_event_path, icon_name: :plus %>
             <% end %>
           <% end %>
@@ -130,7 +130,7 @@
     </div>
   </footer>
 
-  <%= render "shared/document_preview" if current_user&.admin? || current_user&.organizer? %>
+  <%= render "shared/document_preview" if current_user&.can_access_role_view?(:admin) || current_user&.can_access_role_view?(:organizer) %>
 
   <dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-dialog-title">
     <form method="dialog">

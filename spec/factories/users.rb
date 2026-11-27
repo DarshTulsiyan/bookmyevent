@@ -10,5 +10,9 @@ FactoryBot.define do
     trait :organizer do
       role { :organizer }
     end
+
+    trait :sudo do
+      role { :sudo }
+    end
   end
 end

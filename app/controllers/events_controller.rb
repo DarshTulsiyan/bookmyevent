@@ -130,7 +130,7 @@ class EventsController < ApplicationController
     user = current_user
 
     return head :not_found unless event && user
-    return head :not_found unless user.admin? || event.organizer_id == user.id
+    return head :not_found unless user.can_access_role_view?(:admin) || event.organizer_id == user.id
 
     document = event.authorization_document
     return head :not_found unless document.attached?

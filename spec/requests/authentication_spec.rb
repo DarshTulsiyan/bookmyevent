@@ -43,14 +43,16 @@ RSpec.describe "Authentication", type: :request do
     expect(response.body).to include("Name can&#39;t be blank")
   end
 
-  it "prevents admin registration" do
-    expect {
-      post signup_path, params: {
-        user: signup_attributes.merge(role: "admin")
-      }
-    }.not_to change(User, :count)
+  it "prevents privileged-role registration" do
+    %w[admin sudo].each do |role|
+      expect {
+        post signup_path, params: {
+          user: signup_attributes.merge(email: "#{role}@example.com", role: role)
+        }
+      }.not_to change(User, :count)
 
-    expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
   end
 
   it "logs in with the correct credentials" do
@@ -116,5 +118,14 @@ RSpec.describe "Authentication", type: :request do
     get account_path
 
     expect(response).to redirect_to(login_path)
+  end
+
+  it "limits repeated failed login attempts" do
+    allow(SessionsController.cache_store).to receive(:increment).and_return(11)
+
+    post login_path, params: { email: "missing@example.com", password: "wrong" }
+
+    expect(response).to redirect_to(login_path)
+    expect(flash[:alert]).to eq("Too many attempts. Try again later.")
   end
 end

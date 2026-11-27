@@ -1,0 +1,63 @@
+<% content_for :title, "Admin access requests | BookMyEvent" %>
+
+<header class="page-header">
+  <div>
+    <span class="eyebrow"><%= icon(:shield, size: 14) %> Admin</span>
+    <h1>Admin access requests</h1>
+    <p>Review applications from email addresses without an existing account.</p>
+  </div>
+</header>
+
+<%= render "admin/navigation" %>
+
+<section class="card" aria-labelledby="pending-requests-heading">
+  <h2 id="pending-requests-heading" class="card__title">Pending requests</h2>
+  <% if @pending_requests.any? %>
+    <div class="table-wrap">
+      <table class="table">
+        <caption class="sr-only">Pending admin access requests</caption>
+        <thead>
+          <tr><th scope="col">Applicant</th><th scope="col">Email</th><th scope="col">Submitted</th><th scope="col">Status</th></tr>
+        </thead>
+        <tbody>
+          <% @pending_requests.each do |access_request| %>
+            <tr>
+              <td><%= link_to access_request.name, admin_access_request_path(access_request) %></td>
+              <td><%= access_request.email %></td>
+              <td><%= l access_request.created_at, format: :long %></td>
+              <td><span class="badge badge-pending">Pending review</span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="muted">There are no pending access requests.</p>
+  <% end %>
+</section>
+
+<section class="card" aria-labelledby="reviewed-requests-heading">
+  <h2 id="reviewed-requests-heading" class="card__title">Reviewed requests</h2>
+  <% if @reviewed_requests.any? %>
+    <div class="table-wrap">
+      <table class="table">
+        <caption class="sr-only">Reviewed admin access requests</caption>
+        <thead>
+          <tr><th scope="col">Applicant</th><th scope="col">Email</th><th scope="col">Decision</th><th scope="col">Reviewed</th></tr>
+        </thead>
+        <tbody>
+          <% @reviewed_requests.each do |access_request| %>
+            <tr>
+              <td><%= link_to access_request.name, admin_access_request_path(access_request) %></td>
+              <td><%= access_request.email %></td>
+              <td><span class="badge badge-<%= access_request.status %>"><%= access_request.status.humanize %></span></td>
+              <td><%= l access_request.reviewed_at, format: :long if access_request.reviewed_at %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="muted">No requests have been reviewed yet.</p>
+  <% end %>
+</section>

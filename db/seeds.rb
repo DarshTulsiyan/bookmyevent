@@ -13,8 +13,23 @@ if Rails.env.development?
   admin = User.find_or_initialize_by(email: "admin@bookmyevent.com")
   admin.name = "BookMyEvent Admin"
   admin.role = :admin
+  admin.admin_access_request_reviewer = true
   admin.password = "admin@123"
   admin.save!
+
+  # Keep this account available for local role-view checks without provisioning it in production.
+  sudo_email = "sudo_user@bookmyevent.com"
+  sudo_password = "sudo@123"
+  sudo_user = User.find_or_initialize_by(email: sudo_email)
+  if sudo_user.persisted? && !sudo_user.sudo?
+    raise "The development sudo email already belongs to a non-sudo account"
+  end
+
+  sudo_user.name = "BookMyEvent Superuser"
+  sudo_user.role = :sudo
+  sudo_user.password = sudo_password
+  sudo_user.password_confirmation = sudo_password
+  sudo_user.save!
 end
 
 # Opt-in production provisioning for deployments without console access.
@@ -27,6 +42,7 @@ if Rails.env.production? && (ENV["ADMIN_EMAIL"].present? || ENV["ADMIN_PASSWORD"
   admin = User.find_or_initialize_by(email: email)
   admin.name = ENV.fetch("ADMIN_NAME", "BookMyEvent Admin") if admin.new_record?
   admin.role = :admin
+  admin.admin_access_request_reviewer = true
   admin.password = password
   admin.password_confirmation = password
   admin.save!
