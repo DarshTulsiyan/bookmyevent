@@ -104,6 +104,20 @@ RSpec.describe "Event authorization documents", type: :request do
     expect(event.reload).to be_draft
   end
 
+  it "reports an unattached blob cleanup failure" do
+    log_in(event.organizer)
+    allow_any_instance_of(ActiveStorage::Blob).to receive(:upload_without_unfurling)
+      .and_raise(StandardError, "upload failed")
+    allow_any_instance_of(ActiveStorage::Blob).to receive(:purge)
+      .and_raise(StandardError, "purge failed")
+    expect(Rails.error).to receive(:report).twice
+
+    submit_document(pdf)
+
+    expect(flash[:alert]).to include("could not be uploaded")
+    expect(event.reload).to be_draft
+  end
+
   describe "downloading proof after publication" do
     before do
       event.update!(status: :approved)
@@ -142,6 +156,16 @@ RSpec.describe "Event authorization documents", type: :request do
 
       expect(response.media_type).to eq("application/octet-stream")
       expect(response.headers["Content-Disposition"]).to include("attachment")
+    end
+
+    it "returns not found when the stored proof cannot be downloaded" do
+      log_in(event.organizer)
+      allow_any_instance_of(ActiveStorage::Blob).to receive(:download)
+        .and_raise(ActiveStorage::FileNotFoundError)
+
+      get authorization_document_event_path(event)
+
+      expect(response).to have_http_status(:not_found)
     end
 
     it "denies anonymous visitors and unrelated accounts even though the event is public" do

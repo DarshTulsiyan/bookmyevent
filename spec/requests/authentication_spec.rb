@@ -119,4 +119,13 @@ RSpec.describe "Authentication", type: :request do
 
     expect(response).to redirect_to(login_path)
   end
+
+  it "limits repeated failed login attempts" do
+    allow(SessionsController.cache_store).to receive(:increment).and_return(11)
+
+    post login_path, params: { email: "missing@example.com", password: "wrong" }
+
+    expect(response).to redirect_to(login_path)
+    expect(flash[:alert]).to eq("Too many attempts. Try again later.")
+  end
 end
